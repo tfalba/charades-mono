@@ -1,0 +1,14 @@
+# general
+node_modules
+dist
+.DS_Store
+
+# env
+.env
+apps/*/.env
+
+# logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+*.log
