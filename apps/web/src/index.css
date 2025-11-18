@@ -6,4 +6,26 @@
   .card { @apply rounded-2xl border border-slate-200 shadow-sm p-4 bg-white; }
   .btn { @apply inline-flex items-center justify-center px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 active:scale-[.99] transition; }
   .btn-primary { @apply bg-brand-primary text-white border-brand-primary hover:bg-brand-primary/50 hover:opacity-90; }
+  .theme-select { @apply card rounded-xl border px-3 py-2 focus:outline-none transition; }
+  .theme-select:focus-visible {
+    outline: 3px solid var(--accent-color, #007469);
+    outline-offset: 2px;
+    border-color: var(--accent-color, #007469);
+    box-shadow: 0 0 0 4px var(--accent-color, #007469);
+  }
+  .background {background-color: var(--accent-color)/15;}
+  .header-gradient {
+    background: linear-gradient(
+      90deg,
+      #F97316 0%,
+      #F97316 12%,
+      #8B5CF6 24%,
+      #0EA5E9 36%,
+      #FACC15 48%,
+      #EC4899 60%,
+      #22C55E 72%,
+      #64748B 84%,
+      #0D4650 100%
+    );
+  }
 }
