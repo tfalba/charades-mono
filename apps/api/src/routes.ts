@@ -37,6 +37,8 @@ router.post("/challenge", async (req, res) => {
           "    - tv-show → iconic shows, characters, or activities from them.",
           "    - objects → everyday things someone could pantomime using their body.",
           "    - actions → common verbs (e.g., brushing teeth, juggling).",
+          "• Use full titles for media (movie/book/song/TV) rather than fragments.",
+          "• For people: use famous individuals or a recognizable type of person (e.g., firefighter).",
           "• Prefer physical actions, familiar titles, or roles people can represent visually.",
           "• Avoid anything that depends on speech, spelling, or numbers.",
           "• Avoid abstract ideas (e.g., Happiness, Freedom), or items with no visible gesture.",

@@ -52,10 +52,10 @@ export default function App() {
 
       <main
         className="rounded-xl mx-8 md:mx-auto max-w-3xl p-4 space-y-6 min-h-[40vh] min-w-[min(50vw,700px)] my-8 lg:my-12"
-        style={{ backgroundColor: `${accentColor}80` }}
+        style={{ backgroundColor: `${accentColor}70` }}
       >
         <section>
-          <div className="grid gap-3 grid-cols-[1fr,1fr,auto]">
+          <div className="grid gap-3 grid-cols-[1fr,1fr] md:grid-cols-[1fr,1fr,auto]">
             <select
               className="theme-select"
               value={topic}
@@ -82,9 +82,7 @@ export default function App() {
               <option value="Medium">Medium</option>
               <option value="Hard">Hard</option>
             </select>
-          </div>
-        </section>
-        <button
+             <button
           onClick={fetchPrompts}
           disabled={loading}
           className={`btn btn-primary ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
@@ -92,12 +90,24 @@ export default function App() {
         >
           {loading ? "Loading…" : "Get Prompts"}
         </button>
+          </div>
+        </section>
+       
 
-        <section className="card border-2" style={{ borderColor: accentColor }}>
+        <section className="card border-2 h-[180px]" style={{ borderColor: accentColor }}>
           {prompts.length === 0 ? (
+            <>
             <p className="text-slate-500">
-              No prompts yet—click “Get Prompts”.
+              Click Prompt to Generate
             </p>
+              <div className="flex justify-center my-4">
+                    <img
+                      src={logo}
+                      alt="Loading"
+                      className="h-20 w-20 logo-spin opacity-90"
+                    />
+                  </div>
+                  </>
           ) : (
             <div className="flex flex-col">
               <div className="flex justify-between items-center gap-2 text-sm text-slate-600">
@@ -117,17 +127,23 @@ export default function App() {
               </div>
               <div className="space-y-1">
                 {!loading ? (
-                  <p className="text-xl font-semibold text-center my-6">
+                  <p className="text-xl font-semibold text-center my-8">
                     {prompts[idx]}
                   </p>
                 ) : (
-                  <p className="text-center my-7">Loading...</p>
+                  <div className="flex justify-center my-4">
+                    <img
+                      src={logo}
+                      alt="Loading"
+                      className="h-20 w-20 logo-spin opacity-90"
+                    />
+                  </div>
                 )}
               </div>
             </div>
           )}
         </section>
-        {prompts.length > 0 && idx < 4 && (
+        {prompts.length > 0 && idx < 4 ? (
           <section className="flex justify-end">
             <button
               className="btn btn-primary items-end ml-auto"
@@ -137,7 +153,15 @@ export default function App() {
               Get Alternate
             </button>
           </section>
-        )}
+        ) :
+        <section className="flex py-4">
+            <button
+              className=" w-0 items-end ml-auto text-transparent"
+              onClick={() => getAlternate(idx)}
+            >
+              Dummy
+            </button>
+          </section>}
       </main>
       <footer className="bg-[#231515] h-[40vh] w-[100vw]"></footer>
     </div>

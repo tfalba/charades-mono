@@ -13,7 +13,6 @@
     border-color: var(--accent-color, #007469);
     box-shadow: 0 0 0 4px var(--accent-color, #007469);
   }
-  .background {background-color: var(--accent-color)/15;}
   .header-gradient {
     background: linear-gradient(
       90deg,
@@ -27,5 +26,17 @@
       #64748B 84%,
       #0D4650 100%
     );
+  }
+  .logo-spin {
+    animation: spin 2.1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
   }
 }
