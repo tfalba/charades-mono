@@ -7,6 +7,7 @@ import {
   type Topic,
 } from "@charades/shared";
 import logo from "./assets/logo.png";
+import { GameWheel, type Player } from "./components/GameWheel";
 
 export default function App() {
   const [topic, setTopic] = useState<Topic>("movies");
@@ -14,6 +15,7 @@ export default function App() {
   const [prompts, setPrompts] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [idx, setIdx] = useState(0);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const topicTheme = TOPIC_INFO[topic];
   const accentColor = topicTheme.color;
   const selectAccentStyle = { "--accent-color": accentColor } as CSSProperties;
@@ -38,7 +40,7 @@ export default function App() {
   return (
     <div className={`min-h-dvh header-gradient flex flex-col justify-between`}>
       <header className="text-white min-h-[15vh] bg-[#231515] ">
-        <div className="mx-auto max-w-3xl px-4 py-8 flex justify-evenly items-center">
+        <div className="mx-auto max-w-3xl px-4 py-4 flex justify-evenly items-center">
           <h1 className=" text-[min(9vw,15vh,60px)] font-italic font-bold">
             Charades
           </h1>
@@ -51,7 +53,7 @@ export default function App() {
       </header>
 
       <main
-        className="rounded-xl mx-8 md:mx-auto max-w-3xl p-4 space-y-6 min-h-[40vh] min-w-[min(50vw,700px)] my-8 lg:my-12"
+        className="rounded-xl mx-8 md:mx-auto max-w-3xl p-4 space-y-2 min-w-[min(50vw,700px)] my-4 lg:my-12"
         style={{ backgroundColor: `${accentColor}70` }}
       >
         <section>
@@ -93,8 +95,10 @@ export default function App() {
           </div>
         </section>
        
-
-        <section className="card border-2 h-[180px]" style={{ borderColor: accentColor }}>
+        <section
+          className="card border-2 h-[160px] mb-0 relative overflow-hidden"
+          style={{ borderColor: accentColor }}
+        >
           {prompts.length === 0 ? (
             <>
             <p className="text-slate-500">
@@ -109,7 +113,7 @@ export default function App() {
                   </div>
                   </>
           ) : (
-            <div className="flex flex-col">
+            <div className="flex flex-col h-full">
               <div className="flex justify-between items-center gap-2 text-sm text-slate-600">
                 <span
                   className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1"
@@ -125,9 +129,9 @@ export default function App() {
                   Difficulty: {difficulty}
                 </span>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 flex-1 flex items-center justify-center">
                 {!loading ? (
-                  <p className="text-xl font-semibold text-center my-8">
+                  <p className="text-xl font-semibold text-center px-2">
                     {prompts[idx]}
                   </p>
                 ) : (
@@ -142,6 +146,17 @@ export default function App() {
               </div>
             </div>
           )}
+          {prompts.length > 0 && selectedPlayer && (
+            <div className="absolute bottom-3 left-3">
+              <span
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-white text-xs font-semibold shadow-lg"
+                style={{ backgroundColor: selectedPlayer.color }}
+              >
+                <span className="h-2.5 w-2.5 rounded-full bg-white/80" />
+                {selectedPlayer.name}
+              </span>
+            </div>
+          )}
         </section>
         {prompts.length > 0 && idx < 4 ? (
           <section className="flex justify-end">
@@ -154,7 +169,8 @@ export default function App() {
             </button>
           </section>
         ) :
-        <section className="flex py-4">
+        <section className="flex py-1 min-h-full">
+          {/* <GameWheel /> */}
             <button
               className=" w-0 items-end ml-auto text-transparent"
               onClick={() => getAlternate(idx)}
@@ -163,7 +179,9 @@ export default function App() {
             </button>
           </section>}
       </main>
-      <footer className="bg-[#231515] h-[40vh] w-[100vw]"></footer>
+      <footer className="bg-[#231515] h-[40vh] w-[100vw]">
+        <GameWheel onPlayerSelected={setSelectedPlayer} />
+      </footer>
     </div>
   );
 }
