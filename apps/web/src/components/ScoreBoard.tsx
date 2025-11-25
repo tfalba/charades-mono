@@ -1,17 +1,21 @@
+import { useEffect } from "react";
 import { Player } from "./GameWheel";
 
 interface ScoreBoardProps {
   roundHeaders: string[];
   players: Player[];
-  selectedPlayer?: Player | null;
+  selectedPlayer: Player | null;
   results: boolean[][];
   toggleResult: (idx: number, roundIdx: number) => void;
 }
 
 export const ScoreBoard: React.FC<ScoreBoardProps> = ({ roundHeaders, players, selectedPlayer, results, toggleResult }) => {
      
+    useEffect(() => {
+        if (selectedPlayer) console.log(selectedPlayer);
+    })
     return (
-         <div className="w-full max-w-xl">
+         <div className="w-full flex-1 max-w-xl">
           <div className="text-center text-lg font-semibold uppercase tracking-wide text-white mb-3">
             Scoreboard
           </div>

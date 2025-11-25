@@ -8,7 +8,7 @@
   .btn-primary { @apply bg-brand-primary text-white border-brand-primary hover:bg-brand-primary/50 hover:opacity-90; }
   .theme-select-wrapper { @apply relative w-full; }
   .theme-select {
-    @apply w-full rounded-2xl border border-slate-700 bg-[#2b1b1b] px-4 py-3 text-white font-semibold shadow-md focus:outline-none focus:ring-0 transition appearance-none;
+    @apply w-full rounded-2xl border border-slate-700 bg-[#2b1b1bba] px-4 py-3 text-white font-semibold shadow-md focus:outline-none focus:ring-0 transition appearance-none;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
   }
   .theme-select option {

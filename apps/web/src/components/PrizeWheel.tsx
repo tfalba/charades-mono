@@ -46,9 +46,16 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
       ].join(" ");
 
       // label position
-      const labelRadius = radius * 0.6;
-      const labelX = center + labelRadius * Math.cos(midAngle);
-      const labelY = center + labelRadius * Math.sin(midAngle);
+      const labelOuterRadius = radius * 0.85;
+      const labelInnerRadius = radius * 0.32;
+      const labelX = center + ((labelOuterRadius + labelInnerRadius) / 2) * Math.cos(midAngle);
+      const labelY = center + ((labelOuterRadius + labelInnerRadius) / 2) * Math.sin(midAngle);
+      const outerTextX = center + labelOuterRadius * Math.cos(midAngle);
+      const outerTextY = center + labelOuterRadius * Math.sin(midAngle);
+      const innerTextX = center + labelInnerRadius * Math.cos(midAngle);
+      const innerTextY = center + labelInnerRadius * Math.sin(midAngle);
+      const pathId = `slice-label-${index}`;
+      const labelPath = `M ${outerTextX} ${outerTextY} L ${innerTextX} ${innerTextY}`;
 
       return {
         player,
@@ -56,6 +63,8 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
         pathData,
         labelX,
         labelY,
+        labelPath,
+        pathId,
       };
     });
   }, [players, radius, center]);
@@ -80,13 +89,13 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
     const POINTER_DEG = -90;
 
     // 4. compute a big spin that ends with the target center at the pointer
-    const baseSpins = 5; // full rotations for drama
+    const baseSpins = 8; // full rotations for drama
     const finalRotation =
       baseSpins * 360 + (POINTER_DEG - targetCenterDeg);
 
     setRotation(finalRotation);
 
-    const durationMs = 3000; // keep in sync with CSS transition below
+    const durationMs = 2500; // keep in sync with CSS transition below
     window.setTimeout(() => {
       setIsSpinning(false);
       if (onSpinEnd) onSpinEnd(players[targetIndex]);
@@ -96,7 +105,7 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
   const winner = winnerIndex != null ? players[winnerIndex] : null;
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col flex-1 items-center gap-4">
       <div className="relative" style={{ width: size, height: size }}>
         {/* pointer */}
         <div className="absolute left-1/2 -top-4 -translate-x-1/2 z-20">
@@ -113,10 +122,15 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
             style={{
               transform: `rotate(${rotation}deg)`,
               transition: isSpinning
-                ? "transform 3s cubic-bezier(0.22, 0.61, 0.36, 1)"
+                ? "transform 2.5s cubic-bezier(0.22, 0.61, 0.36, 1)"
                 : undefined,
             }}
           >
+            <defs>
+              {segments.map((seg) => (
+                <path key={seg.pathId} id={seg.pathId} d={seg.labelPath} />
+              ))}
+            </defs>
             {/* segments */}
             {segments.map((seg) => {
               const isWinner = seg.index === winnerIndex;
@@ -130,19 +144,24 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
                     opacity={isWinner ? 1 : 0.9}
                   />
                   <text
-                    x={seg.labelX}
-                    y={seg.labelY}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
                     fill="#ffffff"
-                    fontSize={12}
+                    fontSize={15}
+                    textAnchor="start"
+                    dominantBaseline="hanging"
                     style={{
                       fontWeight: isWinner ? 700 : 500,
                       textShadow:
                         "0 1px 2px rgba(0,0,0,0.45), 0 0 3px rgba(0,0,0,0.6)",
                     }}
                   >
-                    {seg.player.name}
+                    <textPath
+                      href={`#${seg.pathId}`}
+                      startOffset="4%"
+                      method="align"
+                      spacing="auto"
+                    >
+                      {seg.player.name}
+                    </textPath>
                   </text>
                 </g>
               );
@@ -153,6 +172,7 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
               cx={center}
               cy={center}
               r={radius * 0.25}
+              onClick={spin}
               fill="#111827"
               stroke="#ffffff"
               strokeWidth={3}
@@ -161,14 +181,6 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={spin}
-        disabled={isSpinning || players.length < 4}
-        className="px-6 py-3 rounded-full bg-nickRust text-white font-semibold text-sm tracking-wide shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-nickBrown transition"
-      >
-        {isSpinning ? "Spinning…" : "Spin the Wheel"}
-      </button>
 
       {winner && !isSpinning && (
         <div className="mt-1 text-sm text-nickBlack">
