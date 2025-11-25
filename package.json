@@ -1,8 +1,11 @@
 {
   "name": "charades-mono",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
-  "scripts": {
+  "workspaces": {
+    "packages": ["apps/*", "packages/*"],
+    "nohoist": ["**"]
+  },
+    "scripts": {
     "dev": "concurrently -k -n TYPES,API,WEB -c magenta,green,blue \"npm:dev:types\" \"npm:dev:api\" \"npm:dev:web\"",
     "dev:web": "npm --workspace apps/web run dev",
     "dev:api": "npm --workspace apps/api run dev",

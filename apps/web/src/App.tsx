@@ -7,7 +7,8 @@ import {
   type Topic,
 } from "@charades/shared";
 import logo from "./assets/logo.png";
-import { GameWheel, type Player } from "./components/GameWheel";
+import { WheelScreen } from "./components/WheelScreen";
+import { Player } from "./components/PrizeWheel";
 
 export default function App() {
   const [topic, setTopic] = useState<Topic>("movies");
@@ -40,12 +41,12 @@ export default function App() {
   return (
     <div className={`min-h-dvh header-gradient flex flex-col justify-between`}>
       <header className="text-white min-h-[15vh] bg-[#231515] ">
-        <div className="mx-auto max-w-3xl px-4 py-4 flex justify-evenly items-center">
+        <div className="mx-auto max-w-3xl px-4 py-1 gap-4 flex justify-center items-center">
           <h1 className=" text-[min(9vw,15vh,60px)] font-italic font-bold">
             Charades
           </h1>
           <img
-            className="w-full max-w-[200px] rounded-xl shadow-lg"
+            className="w-full max-w-[176px] rounded-xl shadow-lg"
             alt="logo"
             src={logo}
           ></img>
@@ -53,37 +54,41 @@ export default function App() {
       </header>
 
       <main
-        className="rounded-xl mx-8 md:mx-auto max-w-3xl p-4 space-y-2 min-w-[min(50vw,700px)] my-4 lg:my-12"
+        className="rounded-xl mx-8 md:mx-auto max-w-3xl p-4 space-y-2 min-w-[min(50vw,700px)] my-4 lg:my-8"
         style={{ backgroundColor: `${accentColor}70` }}
       >
         <section>
           <div className="grid gap-3 grid-cols-[1fr,1fr] md:grid-cols-[1fr,1fr,auto]">
-            <select
-              className="theme-select"
-              value={topic}
-              onChange={(e) => {
-                setPrompts([]);
-                setTopic(e.target.value as Topic);
-              }}
-              style={selectAccentStyle}
-            >
-              {TOPIC_LIST.map((t) => (
-                <option key={t.key} value={t.key}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
+            <div className="theme-select-wrapper">
+              <select
+                className="theme-select"
+                value={topic}
+                onChange={(e) => {
+                  setPrompts([]);
+                  setTopic(e.target.value as Topic);
+                }}
+                style={selectAccentStyle}
+              >
+                {TOPIC_LIST.map((t) => (
+                  <option key={t.key} value={t.key}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <select
-              className="theme-select"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-              style={selectAccentStyle}
-            >
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
-            </select>
+            <div className="theme-select-wrapper">
+              <select
+                className="theme-select"
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+                style={selectAccentStyle}
+              >
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
              <button
           onClick={fetchPrompts}
           disabled={loading}
@@ -104,11 +109,11 @@ export default function App() {
             <p className="text-slate-500">
               Click Prompt to Generate
             </p>
-              <div className="flex justify-center my-4">
+              <div className="flex justify-center my-2">
                     <img
                       src={logo}
                       alt="Loading"
-                      className="h-20 w-20 logo-spin opacity-90"
+                      className={`h-20 w-20 opacity-90 ${loading && "logo-spin"}`}
                     />
                   </div>
                   </>
@@ -179,8 +184,9 @@ export default function App() {
             </button>
           </section>}
       </main>
-      <footer className="bg-[#231515] h-[40vh] w-[100vw]">
-        <GameWheel onPlayerSelected={setSelectedPlayer} />
+      <footer className="bg-[#231515] w-full flex justify-center px-4 py-6">
+        {/* <GameWheel onPlayerSelected={setSelectedPlayer} /> */}
+        <WheelScreen onPlayerSelected={setSelectedPlayer}/>
       </footer>
     </div>
   );

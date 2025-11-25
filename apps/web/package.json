@@ -9,9 +9,10 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-"@charades/shared": "file:../../packages/shared",
+    "@charades/shared": "file:../../packages/shared",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-wheel-of-prizes": "^1.1.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.5",

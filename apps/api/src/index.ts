@@ -5,9 +5,14 @@ import { router } from "./routes";
 
 const app = express();
 
-app.use(cors({
-  origin: ["http://127.0.0.1:5173", "http://charades.local:5173"]
-}));
+const allowList =
+  process.env.CORS_ALLOWED_ORIGINS?.split(",").map((origin) => origin.trim()).filter(Boolean) ?? [
+    "http://127.0.0.1:5173",
+    "http://localhost:5173",
+    "http://charades.local:5173",
+  ];
+
+app.use(cors({ origin: allowList }));
 app.use(express.json());
 app.use("/api", router);
 
