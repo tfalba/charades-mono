@@ -1,4 +1,10 @@
-import React, { useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 export type Player = { name: string; color: string };
 
@@ -6,12 +12,14 @@ interface PrizeWheelProps {
   players: Player[];
   onSpinEnd?: (winner: Player) => void;
   size?: number; // optional: size in px
+  spinSignal?: number;
 }
 
 export const PrizeWheel: React.FC<PrizeWheelProps> = ({
   players,
   onSpinEnd,
   size = 300,
+  spinSignal = 0,
 }) => {
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -69,8 +77,8 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
     });
   }, [players, radius, center]);
 
-  const spin = () => {
-    if (isSpinning || players.length < 4) return;
+  const spin = useCallback(() => {
+    if (isSpinning || players.length === 0) return;
     setIsSpinning(true);
 
     const count = players.length;
@@ -98,11 +106,19 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
     const durationMs = 2500; // keep in sync with CSS transition below
     window.setTimeout(() => {
       setIsSpinning(false);
-      if (onSpinEnd) onSpinEnd(players[targetIndex]);
+      if (onSpinEnd) onSpinEnd({ ...players[targetIndex] });
     }, durationMs);
-  };
+  }, [isSpinning, onSpinEnd, players]);
 
   const winner = winnerIndex != null ? players[winnerIndex] : null;
+
+  const lastSpinSignal = useRef(0);
+  useEffect(() => {
+    if (!spinSignal) return;
+    if (spinSignal === lastSpinSignal.current) return;
+    lastSpinSignal.current = spinSignal;
+    spin();
+  }, [spin, spinSignal]);
 
   return (
     <div className="flex flex-col flex-1 items-center gap-4">
@@ -180,6 +196,15 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
           </svg>
         </div>
       </div>
+
+      <button
+        type="button"
+        onClick={spin}
+        disabled={isSpinning || players.length === 0}
+        className="px-6 py-3 rounded-full bg-nickRust text-white font-semibold text-sm tracking-wide shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-nickBrown transition"
+      >
+        {isSpinning ? "Spinning…" : "Spin the Wheel"}
+      </button>
 
 
       {winner && !isSpinning && (

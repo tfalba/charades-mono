@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { getChallenge } from "./api";
 import {
   TOPIC_INFO,
@@ -11,6 +18,10 @@ import { WheelScreen } from "./components/WheelScreen";
 import { Player } from "./components/PrizeWheel";
 import tvStatic from "./assets/tv-static.gif";
 
+const ROUNDS = 5;
+const TURN_DURATION_MS = 5 * 60 * 1000;
+type RoundResult = boolean | null;
+
 export default function App() {
   const [topic, setTopic] = useState<Topic>("movies");
   const [difficulty, setDifficulty] = useState<Difficulty>("Medium");
@@ -18,6 +29,15 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [idx, setIdx] = useState(0);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [results, setResults] = useState<RoundResult[][]>([]);
+  const [turnDeadline, setTurnDeadline] = useState<number | null>(null);
+  const [timeRemainingMs, setTimeRemainingMs] =
+    useState<number>(TURN_DURATION_MS);
+  const [turnOutcome, setTurnOutcome] = useState<"success" | "fail" | null>(
+    null,
+  );
+  const [spinSignal, setSpinSignal] = useState(0);
   const [isTopicMenuOpen, setIsTopicMenuOpen] = useState(false);
   const [isDifficultyMenuOpen, setIsDifficultyMenuOpen] = useState(false);
   const [staticMotionDisabled, setStaticMotionDisabled] = useState(false);
@@ -48,6 +68,35 @@ export default function App() {
     }
   }
 
+
+  const handleTurnResult = useCallback(
+    (didWin: boolean) => {
+      if (!selectedPlayer) return;
+      const playerIdx = players.findIndex(
+        (player) => player.name === selectedPlayer.name,
+      );
+      if (playerIdx === -1) return;
+      const playerRounds = results[playerIdx] ?? [];
+      const roundIdx = playerRounds.findIndex((value) => value === null);
+      if (roundIdx === -1) return;
+
+      setResults((prev) =>
+        prev.map((rounds, idx) =>
+          idx === playerIdx
+            ? rounds.map((value, i) => (i === roundIdx ? didWin : value))
+            : rounds,
+        ),
+      );
+      setTurnOutcome(didWin ? "success" : "fail");
+      setTurnDeadline(null);
+      setTimeRemainingMs(0);
+      setSelectedPlayer(null);
+      setPrompts([]);
+      setIdx(0);
+    },
+    [players, results, selectedPlayer],
+  );
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const targetNode = event.target as Node;
@@ -69,17 +118,87 @@ export default function App() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!selectedPlayer || prompts.length === 0) {
+      setTurnDeadline(null);
+      setTimeRemainingMs(TURN_DURATION_MS);
+      return;
+    }
+    setTurnOutcome(null);
+    setTurnDeadline(Date.now() + TURN_DURATION_MS);
+    setTimeRemainingMs(TURN_DURATION_MS);
+  }, [selectedPlayer, prompts.length]);
+
+  useEffect(() => {
+    if (!turnDeadline || turnOutcome || !selectedPlayer) return;
+    const tick = () => {
+      const remaining = turnDeadline - Date.now();
+      if (remaining <= 0) {
+        setTimeRemainingMs(0);
+        handleTurnResult(false);
+      } else {
+        setTimeRemainingMs(remaining);
+      }
+    };
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [turnDeadline, turnOutcome, selectedPlayer, handleTurnResult]);
+
+  useEffect(() => {
+    if (!turnOutcome) return;
+    const timeout = window.setTimeout(() => setTurnOutcome(null), 2000);
+    return () => window.clearTimeout(timeout);
+  }, [turnOutcome]);
+
+  useEffect(() => {
+    if (prompts.length > 0 && turnOutcome) {
+      setTurnOutcome(null);
+    }
+  }, [prompts.length, turnOutcome]);
+
   function getAlternate(i: number) {
     setIdx(i + 1);
   }
 
-  function menuHighlightStyle(d: string) {
-    if (difficulty === d) {
-      console.log(selectedPlayer?.color, "color");
-      return selectedPlayer?.color;
-    }
-    else return "";
-  }
+  const handleAddPlayer = useCallback((player: Player) => {
+    setPlayers((prev) => [...prev, player]);
+    setResults((prev) => [...prev, Array(ROUNDS).fill(null)]);
+  }, []);
+
+  const handleRemovePlayer = useCallback(
+    (index: number) => {
+      setPlayers((prev) => {
+        const removed = prev[index];
+        if (removed && selectedPlayer?.name === removed.name) {
+          setSelectedPlayer(null);
+        }
+        return prev.filter((_, idx) => idx !== index);
+      });
+      setResults((prev) => prev.filter((_, idx) => idx !== index));
+    },
+    [selectedPlayer],
+  );
+
+  const requestSpin = useCallback(() => {
+    if (players.length === 0 || prompts.length === 0) return;
+    setSpinSignal((prev) => prev + 1);
+  }, [players.length, prompts.length]);
+
+
+  const formattedTime = useMemo(() => {
+    const totalSeconds = Math.max(0, Math.ceil(timeRemainingMs / 1000));
+    const minutes = Math.floor(totalSeconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }, [timeRemainingMs]);
+  const canRequestSpin =
+    players.length > 0 &&
+    prompts.length > 0 &&
+    !selectedPlayer &&
+    !turnOutcome;
 
   return (
     <div className={`min-h-dvh header-gradient flex flex-col justify-between`}>
@@ -231,12 +350,9 @@ export default function App() {
                           }}
                           className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold transition ${
                             difficulty === level
-                              ? // ? "bg-white/10 text-white"
-                                "text-white"
-                              : "text-slate-200 hover:bg-white/25"
+                              ? "bg-white/15 text-white"
+                              : "text-slate-200 hover:bg-white/5"
                           }`}
-                          style={{ backgroundColor: menuHighlightStyle(level) }}
-                          // style={{difficulty === level && backgroundColor: selectedPlayer?.color || ""}`}
                         >
                           <span>{level}</span>
                           {difficulty === level && (
@@ -269,7 +385,7 @@ export default function App() {
         </section>
 
         <section
-          className="card border-2 h-[195px] mb-0 relative overflow-hidden"
+          className="card border-2 h-[230px] mb-0 relative overflow-hidden"
           style={{ borderColor: accentColor }}
         >
           {prompts.length === 0 ? (
@@ -300,11 +416,36 @@ export default function App() {
                   Difficulty: {difficulty}
                 </span>
               </div>
-              <div className="space-y-1 flex-1 flex items-center justify-center">
+              <div className="space-y-4 flex-1 flex flex-col items-center justify-center text-center">
                 {!loading ? (
-                  <p className="text-xl font-semibold text-center px-2">
-                    {prompts[idx]}
-                  </p>
+                  <>
+                    <p className="text-xl font-semibold px-2">
+                      {prompts[idx]}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={requestSpin}
+                      disabled={!canRequestSpin}
+                      className={`flex flex-col items-center justify-center rounded-2xl border border-white/30 px-5 py-3 shadow-lg transition ${
+                        canRequestSpin
+                          ? "bg-white/90 text-slate-900 hover:bg-white"
+                          : "bg-white/20 text-white/60 cursor-not-allowed"
+                      }`}
+                    >
+                      <img
+                        src={logo}
+                        alt="Spin"
+                        className={`h-14 w-14 ${canRequestSpin ? "logo-spin" : ""}`}
+                      />
+                      <span className="mt-2 text-sm font-semibold tracking-wide uppercase">
+                        {players.length === 0
+                          ? "Add players to spin"
+                          : selectedPlayer
+                            ? "Round in progress"
+                            : "Spin to pick player"}
+                      </span>
+                    </button>
+                  </>
                 ) : (
                   <div className="flex justify-center my-4">
                     <img
@@ -326,6 +467,35 @@ export default function App() {
                 <span className="h-2.5 w-2.5 rounded-full bg-white/80" />
                 {selectedPlayer.name}
               </span>
+            </div>
+          )}
+          {prompts.length > 0 && (
+            <div className="absolute bottom-3 right-3 flex flex-col sm:flex-row items-end sm:items-center gap-3">
+              <div className="text-sm font-semibold text-white px-3 py-1 rounded-full bg-slate-900/70 border border-white/10">
+                {selectedPlayer ? formattedTime : "05:00"}
+              </div>
+              <button
+                type="button"
+                onClick={() => handleTurnResult(true)}
+                disabled={!selectedPlayer || !turnDeadline || !!turnOutcome}
+                className="rounded-full bg-white text-slate-900 font-semibold px-4 py-2 text-sm uppercase tracking-wide shadow disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Got It
+              </button>
+            </div>
+          )}
+          {turnOutcome && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/40 backdrop-blur-sm">
+              <div
+                className={`text-6xl font-black drop-shadow-2xl ${
+                  turnOutcome === "success" ? "text-green-400" : "text-red-400"
+                }`}
+              >
+                {turnOutcome === "success" ? "✓" : "✕"}
+              </div>
+              <p className="text-lg font-semibold text-white">
+                {turnOutcome === "success" ? "Round Won!" : "Time's Up!"}
+              </p>
             </div>
           )}
         </section>
@@ -358,6 +528,12 @@ export default function App() {
         <WheelScreen
           onPlayerSelected={setSelectedPlayer}
           selectedPlayer={selectedPlayer}
+          players={players}
+          results={results}
+          roundCount={ROUNDS}
+          onAddPlayer={handleAddPlayer}
+          onRemovePlayer={handleRemovePlayer}
+          spinSignal={spinSignal}
         />
       </footer>
     </div>
