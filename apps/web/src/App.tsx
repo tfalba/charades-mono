@@ -223,7 +223,7 @@ export default function App() {
       </header>
 
       <main
-        className="flex flex-col gap-4 rounded-xl mx-8 md:mx-auto max-w-3xl min-h-[100vh] p-4 space-y-2 min-w-[min(70vw,700px)] my-4 lg:my-6"
+        className="flex flex-col gap-4 rounded-xl mx-2 md:mx-auto max-w-3xl min-h-[100vh] p-4 space-y-2 min-w-[min(70vw,700px)] my-4 lg:my-6"
         style={{ backgroundColor: `${accentColor}15` }}
       >
         <section>
@@ -371,14 +371,18 @@ export default function App() {
             </div>
             <button
               onClick={fetchPrompts}
-              disabled={loading}
+              disabled={loading || !selectedPlayer}
               className={`px-4 py-2 rounded-full border text-xs uppercase tracking-wide font-semibold transition shadow ${
-                loading
+                loading || !selectedPlayer
                   ? "bg-white/20 text-white/60 cursor-not-allowed border-white/20"
                   : "bg-white/10 text-white border-white/30 hover:bg-white/20"
               }`}
             >
-              {loading ? "Loading…" : "Get Prompts"}
+              {loading
+                ? "Loading…"
+                : selectedPlayer
+                  ? "Get Prompts"
+                  : "Spin First"}
             </button>
           </div>
         </section>
@@ -389,7 +393,7 @@ export default function App() {
         >
           {prompts.length === 0 ? (
             <>
-              <p className="text-slate-500">Click Prompt to Generate</p>
+              <p className="text-slate-500">Spin to Select Player</p>
               <div className="flex justify-center my-2">
                 <img
                   src={logo}
@@ -400,7 +404,7 @@ export default function App() {
             </>
           ) : (
             <div className="flex flex-col h-full">
-              <div className="flex justify-between items-center gap-2 text-sm text-slate-600">
+              <div className="flex justify-between items-center gap-2 text-sm text-slate-600 mb-4 sm:mb-0">
                 <span
                   className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1"
                   aria-label={`${topicTheme.label} theme color`}
@@ -455,19 +459,9 @@ export default function App() {
               </div>
             </div>
           )}
-          {selectedPlayer && (
-            <div className="absolute bottom-3 right-3">
-              <span
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-white text-xs font-semibold shadow-lg"
-                style={{ backgroundColor: selectedPlayer.color }}
-              >
-                <span className="h-2.5 w-2.5 rounded-full bg-white/80" />
-                {selectedPlayer.name}
-              </span>
-            </div>
-          )}
+     
         {prompts.length > 0 && idx < 4 ? (
-            <section className="flex justify-end">
+            <section className="flex justify-end mt-4 sm:mt-0">
               <button
                 className="items-end ml-auto px-4 py-2 rounded-full border text-xs uppercase tracking-wide font-semibold transition shadow bg-white/10 text-white border-white/30 hover:bg-white/20"
                 onClick={getAlternate}
@@ -480,21 +474,42 @@ export default function App() {
           )}
           <div className="flex items-end justify-between">
             {prompts.length > 0 && (
-              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <div className="text-sm font-semibold text-white px-3 py-1 rounded-full bg-slate-900/70 border border-white/10">
                   {selectedPlayer ? formattedTime : "05:00"}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleTurnResult(true)}
-                  disabled={!selectedPlayer || !turnDeadline || !!turnOutcome}
-                  className="rounded-full bg-white text-slate-900 font-semibold px-4 py-2 text-sm uppercase tracking-wide shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Got It
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleTurnResult(false)}
+                    disabled={!selectedPlayer || !!turnOutcome}
+                    className="rounded-full bg-red-500/80 text-white font-semibold px-4 py-2 text-sm uppercase tracking-wide shadow disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-500"
+                  >
+                    Surrender
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleTurnResult(true)}
+                    disabled={!selectedPlayer || !turnDeadline || !!turnOutcome}
+                    className="rounded-full bg-white text-slate-900 font-semibold px-4 py-2 text-sm uppercase tracking-wide shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Got It
+                  </button>
+                </div>
               </div>
             )}
           </div>
+               {selectedPlayer && (
+            <div className="absolute bottom-3 right-3">
+              <span
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-white text-xs font-semibold shadow-lg"
+                style={{ backgroundColor: selectedPlayer.color }}
+              >
+                <span className="h-2.5 w-2.5 rounded-full bg-white/80" />
+                {selectedPlayer.name}
+              </span>
+            </div>
+          )}
 
           {turnOutcome && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/40 backdrop-blur-sm">

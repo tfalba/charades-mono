@@ -207,7 +207,7 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
       </button>
 
 
-      {winner && !isSpinning && (
+      {/* {winner && !isSpinning && (
         <div className="mt-1 text-sm text-nickBlack">
           Winner:{" "}
           <span
@@ -220,7 +220,7 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
             {winner.name}
           </span>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
