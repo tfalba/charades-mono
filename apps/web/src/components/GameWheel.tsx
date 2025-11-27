@@ -178,7 +178,7 @@ export const GameWheel: React.FC<GameWheelProps> = ({ onPlayerSelected }) => {
           players={players}
           selectedPlayer={selectedPlayer}
           results={results}
-          toggleResult={toggleResult}
+          // toggleResult={toggleResult}
         />
       </div>
     </div>

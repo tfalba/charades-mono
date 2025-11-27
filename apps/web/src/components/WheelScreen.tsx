@@ -63,7 +63,22 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
 
   return (
     <div className="relative min-h-auto flex flex-col gap-4 items-center justify-center bg-midnight/80 text-white py-6">
-      <div className="w-full flex justify-end px-4">
+     
+      <div className="flex flex-wrap gap-4 items-start justify-center w-full px-4">
+        <PrizeWheel
+          players={players}
+          onSpinEnd={onPlayerSelected}
+          spinSignal={spinSignal}
+          size={250}
+        />
+        <div className="flex flex-col gap-4">
+        <ScoreBoard
+          roundHeaders={roundHeaders}
+          players={players}
+          selectedPlayer={selectedPlayer}
+          results={results}
+        />
+         <div className="w-full flex justify-end px-4">
         <button
           type="button"
           onClick={() => setIsPanelOpen(true)}
@@ -72,18 +87,7 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
           Manage Players
         </button>
       </div>
-      <div className="flex flex-wrap gap-4 items-center justify-center w-full px-4">
-        <PrizeWheel
-          players={players}
-          onSpinEnd={onPlayerSelected}
-          spinSignal={spinSignal}
-        />
-        <ScoreBoard
-          roundHeaders={roundHeaders}
-          players={players}
-          selectedPlayer={selectedPlayer}
-          results={results}
-        />
+        </div>
       </div>
 
       <div

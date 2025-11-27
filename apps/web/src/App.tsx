@@ -35,7 +35,7 @@ export default function App() {
   const [timeRemainingMs, setTimeRemainingMs] =
     useState<number>(TURN_DURATION_MS);
   const [turnOutcome, setTurnOutcome] = useState<"success" | "fail" | null>(
-    null,
+    null
   );
   const [spinSignal, setSpinSignal] = useState(0);
   const [isTopicMenuOpen, setIsTopicMenuOpen] = useState(false);
@@ -68,12 +68,11 @@ export default function App() {
     }
   }
 
-
   const handleTurnResult = useCallback(
     (didWin: boolean) => {
       if (!selectedPlayer) return;
       const playerIdx = players.findIndex(
-        (player) => player.name === selectedPlayer.name,
+        (player) => player.name === selectedPlayer.name
       );
       if (playerIdx === -1) return;
       const playerRounds = results[playerIdx] ?? [];
@@ -84,8 +83,8 @@ export default function App() {
         prev.map((rounds, idx) =>
           idx === playerIdx
             ? rounds.map((value, i) => (i === roundIdx ? didWin : value))
-            : rounds,
-        ),
+            : rounds
+        )
       );
       setTurnOutcome(didWin ? "success" : "fail");
       setTurnDeadline(null);
@@ -94,7 +93,7 @@ export default function App() {
       setPrompts([]);
       setIdx(0);
     },
-    [players, results, selectedPlayer],
+    [players, results, selectedPlayer]
   );
 
   useEffect(() => {
@@ -157,9 +156,10 @@ export default function App() {
     }
   }, [prompts.length, turnOutcome]);
 
-  function getAlternate(i: number) {
-    setIdx(i + 1);
-  }
+  const getAlternate = useCallback(() => {
+    setIdx((prev) => prev + 1);
+    setTimeRemainingMs((prev) => Math.max(0, prev - 30_000));
+  }, []);
 
   const handleAddPlayer = useCallback((player: Player) => {
     setPlayers((prev) => [...prev, player]);
@@ -177,14 +177,13 @@ export default function App() {
       });
       setResults((prev) => prev.filter((_, idx) => idx !== index));
     },
-    [selectedPlayer],
+    [selectedPlayer]
   );
 
   const requestSpin = useCallback(() => {
     if (players.length === 0 || prompts.length === 0) return;
     setSpinSignal((prev) => prev + 1);
   }, [players.length, prompts.length]);
-
 
   const formattedTime = useMemo(() => {
     const totalSeconds = Math.max(0, Math.ceil(timeRemainingMs / 1000));
@@ -195,15 +194,12 @@ export default function App() {
     return `${minutes}:${seconds}`;
   }, [timeRemainingMs]);
   const canRequestSpin =
-    players.length > 0 &&
-    prompts.length > 0 &&
-    !selectedPlayer &&
-    !turnOutcome;
+    players.length > 0 && prompts.length > 0 && !selectedPlayer && !turnOutcome;
 
   return (
     <div className={`min-h-dvh header-gradient flex flex-col justify-between`}>
       <header
-        className="text-white min-h-[15vh] bg-[#231515]"
+        className="text-white min-h-[12vh] bg-[#231515]"
         style={staticBackgroundStyle}
       >
         <div className="relative mx-auto max-w-3xl px-4 py-1 gap-4 flex justify-center items-center">
@@ -211,7 +207,7 @@ export default function App() {
             Charades
           </h1>
           <img
-            className="w-full max-w-[176px] rounded-xl shadow-lg"
+            className="w-full max-w-[145px] rounded-xl shadow-lg"
             alt="logo"
             src={logo}
           ></img>
@@ -227,8 +223,8 @@ export default function App() {
       </header>
 
       <main
-        className="rounded-xl mx-8 md:mx-auto max-w-3xl p-4 space-y-2 min-w-[min(70vw,700px)] my-4 lg:my-8"
-        style={{ backgroundColor: `${accentColor}70` }}
+        className="flex flex-col gap-4 rounded-xl mx-8 md:mx-auto max-w-3xl min-h-[100vh] p-4 space-y-2 min-w-[min(70vw,700px)] my-4 lg:my-6"
+        style={{ backgroundColor: `${accentColor}15` }}
       >
         <section>
           <div className="grid gap-3 grid-cols-[1fr,1fr] md:grid-cols-[1fr,1fr,auto]">
@@ -376,8 +372,11 @@ export default function App() {
             <button
               onClick={fetchPrompts}
               disabled={loading}
-              className={`btn btn-primary ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
-              style={{ backgroundColor: accentColor, borderColor: accentColor }}
+              className={`px-4 py-2 rounded-full border text-xs uppercase tracking-wide font-semibold transition shadow ${
+                loading
+                  ? "bg-white/20 text-white/60 cursor-not-allowed border-white/20"
+                  : "bg-white/10 text-white border-white/30 hover:bg-white/20"
+              }`}
             >
               {loading ? "Loading…" : "Get Prompts"}
             </button>
@@ -385,7 +384,7 @@ export default function App() {
         </section>
 
         <section
-          className="card border-2 h-[230px] mb-0 relative overflow-hidden"
+          className="card border-4 mb-0 relative overflow-hidden"
           style={{ borderColor: accentColor }}
         >
           {prompts.length === 0 ? (
@@ -419,9 +418,7 @@ export default function App() {
               <div className="space-y-4 flex-1 flex flex-col items-center justify-center text-center">
                 {!loading ? (
                   <>
-                    <p className="text-xl font-semibold px-2">
-                      {prompts[idx]}
-                    </p>
+                    <p className="text-xl font-semibold px-2">{prompts[idx]}</p>
                     <button
                       type="button"
                       onClick={requestSpin}
@@ -435,7 +432,7 @@ export default function App() {
                       <img
                         src={logo}
                         alt="Spin"
-                        className={`h-14 w-14 ${canRequestSpin ? "logo-spin" : ""}`}
+                        className={`h-16 w-18 ${canRequestSpin ? "logo-spin" : ""}`}
                       />
                       <span className="mt-2 text-sm font-semibold tracking-wide uppercase">
                         {players.length === 0
@@ -458,8 +455,8 @@ export default function App() {
               </div>
             </div>
           )}
-          {prompts.length > 0 && selectedPlayer && (
-            <div className="absolute bottom-3 left-3">
+          {selectedPlayer && (
+            <div className="absolute bottom-3 right-3">
               <span
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-white text-xs font-semibold shadow-lg"
                 style={{ backgroundColor: selectedPlayer.color }}
@@ -469,21 +466,36 @@ export default function App() {
               </span>
             </div>
           )}
-          {prompts.length > 0 && (
-            <div className="absolute bottom-3 right-3 flex flex-col sm:flex-row items-end sm:items-center gap-3">
-              <div className="text-sm font-semibold text-white px-3 py-1 rounded-full bg-slate-900/70 border border-white/10">
-                {selectedPlayer ? formattedTime : "05:00"}
-              </div>
+        {prompts.length > 0 && idx < 4 ? (
+            <section className="flex justify-end">
               <button
-                type="button"
-                onClick={() => handleTurnResult(true)}
-                disabled={!selectedPlayer || !turnDeadline || !!turnOutcome}
-                className="rounded-full bg-white text-slate-900 font-semibold px-4 py-2 text-sm uppercase tracking-wide shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                className="items-end ml-auto px-4 py-2 rounded-full border text-xs uppercase tracking-wide font-semibold transition shadow bg-white/10 text-white border-white/30 hover:bg-white/20"
+                onClick={getAlternate}
               >
-                Got It
+                Get Alternate
               </button>
-            </div>
+            </section>
+          ) : (
+            <section className="flex py-1 min-h-full" />
           )}
+          <div className="flex items-end justify-between">
+            {prompts.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                <div className="text-sm font-semibold text-white px-3 py-1 rounded-full bg-slate-900/70 border border-white/10">
+                  {selectedPlayer ? formattedTime : "05:00"}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleTurnResult(true)}
+                  disabled={!selectedPlayer || !turnDeadline || !!turnOutcome}
+                  className="rounded-full bg-white text-slate-900 font-semibold px-4 py-2 text-sm uppercase tracking-wide shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Got It
+                </button>
+              </div>
+            )}
+          </div>
+
           {turnOutcome && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/40 backdrop-blur-sm">
               <div
@@ -498,33 +510,8 @@ export default function App() {
               </p>
             </div>
           )}
-        </section>
-        {prompts.length > 0 && idx < 4 ? (
-          <section className="flex justify-end">
-            <button
-              className="btn btn-primary items-end ml-auto"
-              style={{ backgroundColor: accentColor, borderColor: accentColor }}
-              onClick={() => getAlternate(idx)}
-            >
-              Get Alternate
-            </button>
           </section>
-        ) : (
-          <section className="flex py-1 min-h-full">
-            {/* <GameWheel /> */}
-            <button
-              className=" w-0 items-end ml-auto text-transparent"
-              onClick={() => getAlternate(idx)}
-            >
-              Dummy
-            </button>
-          </section>
-        )}
-      </main>
-      <footer
-        className="bg-[#231515/85] w-full flex justify-center px-4 py-6 opacity-[.8]"
-        style={staticBackgroundStyle}
-      >
+
         <WheelScreen
           onPlayerSelected={setSelectedPlayer}
           selectedPlayer={selectedPlayer}
@@ -535,7 +522,11 @@ export default function App() {
           onRemovePlayer={handleRemovePlayer}
           spinSignal={spinSignal}
         />
-      </footer>
+      </main>
+      <footer
+        className="bg-[#231515] w-full flex justify-center px-4 py-6 opacity-[.8]"
+        style={staticBackgroundStyle}
+      />
     </div>
   );
 }
