@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer components {
-  .card { @apply rounded-2xl border border-slate-200 shadow-sm p-4 bg-white/30; }
+  .card { @apply rounded-2xl border border-slate-200 shadow-sm p-4 bg-[#252323e8]; }
   .btn { @apply inline-flex items-center justify-center px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 active:scale-[.99] transition; }
   .btn-primary { @apply bg-brand-primary text-white border-brand-primary hover:bg-brand-primary/50 hover:opacity-90; }
   .theme-select-wrapper { @apply relative w-full; }

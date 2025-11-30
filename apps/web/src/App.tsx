@@ -1,10 +1,27 @@
 import { useState } from "react";
-import { TOPIC_INFO } from "@charades/shared";
+import { TOPIC_INFO, type Topic } from "@charades/shared";
 import logo from "./assets/logo.png";
+import movieLogo from "./assets/movie-logo.png";
+import booksLogo from "./assets/books-logo.png";
+import songsLogo from "./assets/song-logo.png";
+import tvLogo from "./assets/tv-logo.png";
+import peopleLogo from "./assets/people-logo.png";
+import placesLogo from "./assets/places-logo.png";
+import thingsLogo from "./assets/things-logo.png";
 import tvStatic from "./assets/tv-static.gif";
 import { GameController } from "./components/GameController";
 import { WheelScreen } from "./components/WheelScreen";
 import { GameProvider, useGameContext } from "./context/GameContext";
+
+const TOPIC_LOGOS: Record<Topic, string> = {
+  movies: movieLogo,
+  books: booksLogo,
+  songs: songsLogo,
+  "tv-shows": tvLogo,
+  people: peopleLogo,
+  places: placesLogo,
+  things: thingsLogo,
+};
 
 export default function App() {
   return (
@@ -47,6 +64,7 @@ function GameShell() {
     handleAddPlayer,
     handleRemovePlayer,
     spinSignal,
+    fetchPrompts,
   } = useGameContext();
 
   const topicTheme = TOPIC_INFO[topic];
@@ -70,7 +88,7 @@ function GameShell() {
           <button
             type="button"
             onClick={() => setStaticMotionDisabled((prev) => !prev)}
-            className="absolute top-3 right-0 text-xs tracking-wide uppercase bg-black/60 text-white px-4 py-2 rounded-full border border-white/30 shadow-md hover:bg-black/70 transition"
+            className="absolute top-[8vh] right-0 text-xs tracking-wide uppercase bg-black/60 text-white px-4 py-2 rounded-full border border-white/30 shadow-md hover:bg-black/70 transition"
             aria-pressed={staticMotionDisabled}
           >
             {staticMotionDisabled ? "Enable Static" : "Disable Static"}
@@ -99,50 +117,56 @@ function GameShell() {
               />
               {topicTheme.label}
             </span>
-            <span className="text-xs font-semibold text-slate-500">
+            <span className="text-xs font-semibold text-white">
               Difficulty: {difficulty}
             </span>
           </div>
           {prompts.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-8 space-y-4">
-              <p className="text-slate-500">Spin to Select Player</p>
+              {(() => {
+                const primaryDisabled =
+                  loading || (!selectedPlayer && players.length === 0);
+                const actionClass = primaryDisabled
+                  ? "bg-white/20 text-white/60 cursor-not-allowed border-white/20"
+                  : "bg-white/10 text-white border-white/30 hover:bg-white/20";
+                return (
+                  <button
+                    type="button"
+                    onClick={selectedPlayer ? fetchPrompts : requestSpin}
+                    disabled={primaryDisabled}
+                    className={`px-5 py-3 rounded-full border text-xs uppercase tracking-wide font-semibold transition shadow ${actionClass}`}
+                  >
+                    {loading
+                      ? "Loading…"
+                      : selectedPlayer
+                        ? "Get Prompts"
+                        : "Spin the Wheel"}
+                  </button>
+                );
+              })()}
               <div className="flex justify-center">
                 <img
-                  src={logo}
+                  src={TOPIC_LOGOS[topic] ?? logo}
                   alt="Loading"
                   className={`h-32 w-36 opacity-90 ${loading && "logo-spin"}`}
                 />
               </div>
             </div>
           ) : (
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full py-8 space-y-4">
               <div className="space-y-4 flex-1 flex flex-col items-center justify-center text-center">
                 {!loading ? (
                   <>
-                    <p className="text-xl font-semibold px-2">{prompts[idx]}</p>
-                    <button
-                      type="button"
-                      onClick={requestSpin}
-                      disabled={!canRequestSpin}
-                      className={`flex flex-col items-center justify-center rounded-2xl border border-white/30 px-5 py-3 shadow-lg transition ${
-                        canRequestSpin
-                          ? "bg-white/90 text-slate-900 hover:bg-white"
-                          : "bg-white/20 text-white/60 cursor-not-allowed"
-                      }`}
-                    >
+                    <div className="flex flex-col items-center justify-center">
                       <img
-                        src={logo}
-                        alt="Spin"
-                        className={`h-16 w-18 ${canRequestSpin ? "logo-spin" : ""}`}
+                        src={TOPIC_LOGOS[topic] ?? logo}
+                        alt="Loading"
+                        className={`h-32 w-36 opacity-90 ${loading && "logo-spin"}`}
                       />
-                      <span className="mt-2 text-sm font-semibold tracking-wide uppercase">
-                        {players.length === 0
-                          ? "Add players to spin"
-                          : selectedPlayer
-                            ? "Round in progress"
-                            : "Spin to pick player"}
-                      </span>
-                    </button>
+                      <p className="text-2xl  mt-4 text-white font-semibold px-2">
+                        {prompts[idx]}
+                      </p>
+                    </div>
                   </>
                 ) : (
                   <div className="flex justify-center my-4">

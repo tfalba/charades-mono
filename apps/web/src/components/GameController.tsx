@@ -197,21 +197,6 @@ export function GameController() {
             </div>
           )}
         </div>
-        <button
-          onClick={fetchPrompts}
-          disabled={loading || !selectedPlayer}
-          className={`px-4 py-2 rounded-full border text-xs uppercase tracking-wide font-semibold transition shadow ${
-            loading || !selectedPlayer
-              ? "bg-white/20 text-white/60 cursor-not-allowed border-white/20"
-              : "bg-white/10 text-white border-white/30 hover:bg-white/20"
-          }`}
-        >
-          {loading
-            ? "Loading…"
-            : selectedPlayer
-              ? "Get Prompts"
-              : "Spin First"}
-        </button>
       </div>
     </section>
   );

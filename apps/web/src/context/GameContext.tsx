@@ -145,6 +145,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const getAlternate = useCallback(() => {
     if (prompts.length === 0 || idx >= prompts.length - 1) return;
     setIdx((prev) => prev + 1);
+    setTurnDeadline((prev) => (prev ? prev - 30_000 : prev));
     setTimeRemainingMs((prev) => Math.max(0, prev - 30_000));
   }, [idx, prompts.length]);
 
@@ -168,9 +169,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   );
 
   const requestSpin = useCallback(() => {
-    if (players.length === 0 || prompts.length === 0) return;
+    if (players.length === 0) return;
     setSpinSignal((prev) => prev + 1);
-  }, [players.length, prompts.length]);
+  }, [players.length]);
 
   const handleTopicChange = useCallback((nextTopic: Topic) => {
     setPrompts([]);
@@ -183,6 +184,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       .toString()
       .padStart(2, "0");
     const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+    console.log(minutes, "minutes", seconds, "seconds")
     return `${minutes}:${seconds}`;
   }, [timeRemainingMs]);
 

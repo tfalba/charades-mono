@@ -107,6 +107,9 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
     window.setTimeout(() => {
       setIsSpinning(false);
       if (onSpinEnd) onSpinEnd({ ...players[targetIndex] });
+      // reset rotation state so the next spin starts fresh
+      setRotation((prev) => prev % 360);
+      setWinnerIndex(null);
     }, durationMs);
   }, [isSpinning, onSpinEnd, players]);
 
@@ -205,22 +208,6 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
       >
         {isSpinning ? "Spinning…" : "Spin the Wheel"}
       </button>
-
-
-      {/* {winner && !isSpinning && (
-        <div className="mt-1 text-sm text-nickBlack">
-          Winner:{" "}
-          <span
-            className="font-semibold px-2 py-0.5 rounded-full"
-            style={{
-              backgroundColor: `${winner.color}20`,
-              border: `1px solid ${winner.color}`,
-            }}
-          >
-            {winner.name}
-          </span>
-        </div>
-      )} */}
     </div>
   );
 };

@@ -34,7 +34,7 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
   onRemovePlayer,
   spinSignal,
 }) => {
-  const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [isPanelOpen, setIsPanelOpen] = useState(players.length === 0);
   const [newPlayerName, setNewPlayerName] = useState("");
   const [selectedColor, setSelectedColor] = useState(COLOR_PALETTE[0].color);
 
