@@ -38,6 +38,8 @@ interface GameContextValue {
   handleAddPlayer: (player: Player) => void;
   handleRemovePlayer: (index: number) => void;
   handleTurnResult: (didWin: boolean) => void;
+  handleClearRounds: () => void;
+  handleClearPlayers: () => void;
   getAlternate: () => void;
   requestSpin: () => void;
   handleTopicChange: (topic: Topic) => void;
@@ -61,6 +63,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
     useState<number>(TURN_DURATION_MS);
   const [turnOutcome, setTurnOutcome] = useState<TurnOutcome>(null);
   const [spinSignal, setSpinSignal] = useState(0);
+
+  const resetRoundState = useCallback(() => {
+    setSelectedPlayer(null);
+    setPrompts([]);
+    setIdx(0);
+    setTurnDeadline(null);
+    setTimeRemainingMs(TURN_DURATION_MS);
+    setTurnOutcome(null);
+  }, []);
 
   const fetchPrompts = useCallback(async () => {
     setIdx(0);
@@ -173,6 +184,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setSpinSignal((prev) => prev + 1);
   }, [players.length]);
 
+  const handleClearRounds = useCallback(() => {
+    setResults((prev) => prev.map(() => Array(ROUNDS).fill(null)));
+    resetRoundState();
+  }, [resetRoundState]);
+
+  const handleClearPlayers = useCallback(() => {
+    setPlayers([]);
+    setResults([]);
+    resetRoundState();
+  }, [resetRoundState]);
+
   const handleTopicChange = useCallback((nextTopic: Topic) => {
     setPrompts([]);
     setTopic(nextTopic);
@@ -213,6 +235,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       handleAddPlayer,
       handleRemovePlayer,
       handleTurnResult,
+      handleClearRounds,
+      handleClearPlayers,
       getAlternate,
       requestSpin,
       handleTopicChange,
@@ -238,6 +262,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       handleAddPlayer,
       handleRemovePlayer,
       handleTurnResult,
+      handleClearRounds,
+      handleClearPlayers,
       getAlternate,
       requestSpin,
       handleTopicChange,

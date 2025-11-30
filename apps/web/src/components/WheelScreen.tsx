@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Player, PrizeWheel } from "./PrizeWheel";
 import { ScoreBoard } from "./ScoreBoard";
+import { useGameContext } from "../context/GameContext";
 
 const COLOR_PALETTE = [
   { name: "Orange", color: "#F97316" },
@@ -37,6 +38,7 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
   const [isPanelOpen, setIsPanelOpen] = useState(players.length === 0);
   const [newPlayerName, setNewPlayerName] = useState("");
   const [selectedColor, setSelectedColor] = useState(COLOR_PALETTE[0].color);
+  const { handleClearRounds, handleClearPlayers } = useGameContext();
 
   const roundHeaders = useMemo(
     () => Array.from({ length: roundCount }, (_, index) => `${index + 1}`),
@@ -63,32 +65,43 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
 
   return (
     <div className="relative min-h-auto flex flex-col gap-4 items-center justify-center bg-midnight/80 text-white py-6">
-     
+              {players.length > 1 && (
+
       <div className="flex flex-wrap gap-4 items-start justify-center w-full px-4">
-        <PrizeWheel
-          players={players}
-          onSpinEnd={onPlayerSelected}
-          spinSignal={spinSignal}
-          size={250}
-        />
+          <PrizeWheel
+            players={players}
+            onSpinEnd={onPlayerSelected}
+            spinSignal={spinSignal}
+            size={250}
+          />
+      
         <div className="flex flex-col gap-4">
-        <ScoreBoard
-          roundHeaders={roundHeaders}
-          players={players}
-          selectedPlayer={selectedPlayer}
-          results={results}
-        />
-         <div className="w-full flex justify-end px-4">
-        <button
-          type="button"
-          onClick={() => setIsPanelOpen(true)}
-          className="px-4 py-2 rounded-full bg-white/10 border border-white/30 text-xs uppercase tracking-wide hover:bg-white/20 transition shadow"
-        >
-          Manage Players
-        </button>
-      </div>
+          <ScoreBoard
+            roundHeaders={roundHeaders}
+            players={players}
+            selectedPlayer={selectedPlayer}
+            results={results}
+          />
+          <div className="w-full flex justify-between px-4">
+            <button
+              type="button"
+              onClick={() => setIsPanelOpen(true)}
+              className="px-4 py-2 rounded-full bg-black/70 border border-white/30 text-xs uppercase tracking-wide hover:bg-white/20 transition shadow"
+            >
+              Manage Players
+            </button>
+             <button
+              type="button"
+              onClick={() => handleClearRounds()}
+              className="px-4 py-2 rounded-full bg-black/70 border border-white/30 text-xs uppercase tracking-wide hover:bg-white/20 transition shadow"
+            >
+              Clear Rounds
+            </button>
+          </div>
         </div>
+        
       </div>
+              )}
 
       <div
         className={`fixed inset-0 z-40 transition-opacity duration-300 ${
@@ -97,6 +110,11 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
             : "pointer-events-none opacity-0"
         }`}
         aria-hidden={!isPanelOpen}
+        onClick={() => {
+          if (players.length >= 2) {
+            setIsPanelOpen(false);
+          }
+        }}
       >
         <div className="absolute inset-0 bg-black/40" />
       </div>
@@ -116,7 +134,7 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
           <button
             type="button"
             onClick={() => setIsPanelOpen(false)}
-            disabled={players.length === 0}
+            disabled={players.length < 2}
             className="px-3 py-1 rounded-full border border-white/40 text-xs uppercase tracking-wide hover:bg-white/10 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Done
@@ -158,7 +176,15 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
             )}
           </div>
 
-          <div className="space-y-3">
+          <div
+            className="space-y-3"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && newPlayerName.trim()) {
+                e.preventDefault();
+                handleAddPlayer();
+              }
+            }}
+          >
             <p className="text-xs uppercase tracking-wide text-white/60">
               Add Player
             </p>
@@ -197,6 +223,14 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
               className="w-full rounded-xl bg-white text-black font-semibold py-3 uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Add to List
+            </button>
+            <button
+              type="button"
+              onClick={handleClearPlayers}
+              disabled={players.length === 0}
+              className="w-full rounded-full border border-white/20 text-white text-xs py-2 uppercase tracking-wide hover:bg-white/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Clear All Players
             </button>
           </div>
         </div>
