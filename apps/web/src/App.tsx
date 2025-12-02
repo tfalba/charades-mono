@@ -249,14 +249,14 @@ function GameShell() {
         </section>
 
         <WheelScreen
-          onPlayerSelected={setSelectedPlayer}
-          selectedPlayer={selectedPlayer}
-          players={players}
-          results={results}
-          roundCount={roundCount}
-          onAddPlayer={handleAddPlayer}
-          onRemovePlayer={handleRemovePlayer}
-          spinSignal={spinSignal}
+          // onPlayerSelected={setSelectedPlayer}
+          // selectedPlayer={selectedPlayer}
+          // players={players}
+          // results={results}
+          // roundCount={roundCount}
+          // onAddPlayer={handleAddPlayer}
+          // onRemovePlayer={handleRemovePlayer}
+          // spinSignal={spinSignal}
         />
       </main>
       <footer

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Player, PrizeWheel } from "./PrizeWheel";
 import { ScoreBoard } from "./ScoreBoard";
 import { useGameContext } from "../context/GameContext";
@@ -15,53 +15,52 @@ const COLOR_PALETTE = [
 type RoundResult = boolean | null;
 
 interface WheelScreenProps {
-  onPlayerSelected?: (player: Player | null) => void;
-  selectedPlayer: Player | null;
-  players: Player[];
-  results: RoundResult[][];
-  roundCount: number;
-  onAddPlayer: (player: Player) => void;
-  onRemovePlayer: (index: number) => void;
-  spinSignal: number;
+  // onPlayerSelected?: (player: Player | null) => void;
+  // selectedPlayer: Player | null;
+  // players: Player[];
+  // results: RoundResult[][];
+  // roundCount: number;
+  // onAddPlayer: (player: Player) => void;
+  // onRemovePlayer: (index: number) => void;
+  // spinSignal: number;
 }
 
-export const WheelScreen: React.FC<WheelScreenProps> = ({
-  onPlayerSelected,
-  selectedPlayer,
-  players,
-  results,
-  roundCount,
-  onAddPlayer,
-  onRemovePlayer,
-  spinSignal,
-}) => {
-  const [isPanelOpen, setIsPanelOpen] = useState(players.length === 0);
+export const WheelScreen: React.FC<WheelScreenProps> = () => {
   const [newPlayerName, setNewPlayerName] = useState("");
   const [selectedColor, setSelectedColor] = useState(COLOR_PALETTE[0].color);
-  const { handleClearRounds, handleClearPlayers } = useGameContext();
+  const {
+    handleAddPlayer,
+    handleRemovePlayer,
+    spinSignal,
+    results,
+    roundCount,
+    players,
+    handleClearRounds,
+    handleClearPlayers,
+    setSelectedPlayer,
+    selectedPlayer,
+  } = useGameContext();
+  const [isPanelOpen, setIsPanelOpen] = useState(players.length === 0);
 
   const roundHeaders = useMemo(
     () => Array.from({ length: roundCount }, (_, index) => `${index + 1}`),
     [roundCount]
   );
 
-  const handleAddPlayer = () => {
+  const addPlayer = useCallback(() => {
     const trimmed = newPlayerName.trim();
     if (!trimmed) return;
-
-    onAddPlayer({ name: trimmed, color: selectedColor });
+    handleAddPlayer({ name: trimmed, color: selectedColor });
     setNewPlayerName("");
-  };
-
-  const handleRemovePlayer = (index: number) => {
-    onRemovePlayer(index);
-  };
+  }, [handleAddPlayer, newPlayerName, selectedColor]);
 
   useEffect(() => {
     if (players.length === 0) {
       setIsPanelOpen(true);
     }
   }, [players.length]);
+
+  const showPointer = selectedPlayer !== null || players.length > 0;
 
   return (
     <div className="relative min-h-auto flex flex-col gap-4 items-center justify-center bg-midnight/80 text-white py-6">
@@ -70,7 +69,7 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
       <div className="flex flex-wrap gap-4 items-start justify-center w-full px-4">
           <PrizeWheel
             players={players}
-            onSpinEnd={onPlayerSelected}
+            onSpinEnd={setSelectedPlayer}
             spinSignal={spinSignal}
             size={250}
           />
@@ -181,7 +180,7 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
             onKeyDown={(e) => {
               if (e.key === "Enter" && newPlayerName.trim()) {
                 e.preventDefault();
-                handleAddPlayer();
+                addPlayer();
               }
             }}
           >
@@ -218,7 +217,7 @@ export const WheelScreen: React.FC<WheelScreenProps> = ({
             </div>
             <button
               type="button"
-              onClick={handleAddPlayer}
+              onClick={addPlayer}
               disabled={!newPlayerName.trim()}
               className="w-full rounded-xl bg-white text-black font-semibold py-3 uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
             >

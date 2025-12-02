@@ -1,78 +1,82 @@
-# Charades Mono
+# Charades Game Night Hub
 
-This repository is a small monorepo that powers a charades prompt generator and play helper. It contains a backend API that talks to OpenAI, a Vite-powered web client, and a shared package for types/config between them.
+Spin for a player, fetch AI-generated prompts, run five-round matches, and keep score without leaving the browser.
 
-## Repository Layout
+## TL;DR (Short Version)
 
-```
-apps/
-  api/        Express + OpenAI backend
-  web/        Vite/React frontend
-packages/
-  shared/     Shared TypeScript definitions/constants
-```
+- Build teams through a slide-out player panel, then spin the neon wheel to decide who acts next.
+- Topic + difficulty pickers recolor the table and fetch five OpenAI-powered prompts custom to that round.
+- Each actor gets a five-minute countdown, can burn 30 seconds for an alternate hint, and records wins/losses straight into the scoreboard.
+- Tech stack: React 18, TypeScript, Vite, Tailwind CSS on the frontend; Express + OpenAI + shared TypeScript types on the backend. Run `npm install` then `npm run dev` to launch both apps together.
 
-### apps/api
-* Express server (`src/index.ts`) exposes `/api/challenge`.
-* `routes.ts` handles OpenAI chat completion calls. Prompts are collected and stored per-theme so future responses avoid duplicates.
-* Local prompt history JSON lives at `apps/api/data/challenge-history.json` (gitignored).
-* `.env` (not committed) should contain `OPENAI_API_KEY` and optional `PORT`.
+## Long Version
 
-### apps/web
-* Vite + React app residing in `src/`.
-* `App.tsx` renders the UI for selecting theme/difficulty, calling the API via `src/api.ts`, and displaying results.
-* `components/GameWheel.tsx` contains a simple wheel spinner widget for picking players. It exposes the selected player back to `App` so the prompt card can show that badge.
-* Tailwind is configured via `tailwind.config.js` and `src/index.css`.
+### What the App Does
 
-### packages/shared
-* Contains the TypeScript types shared by both API and web apps (`ChallengeRequest`, `ChallengeResponse`, `Topic`, etc.).
-* Built output is in `packages/shared/dist`. Both apps import the source during dev via TypeScript path mapping.
+1. **Player Setup Drawer** – A fixed left drawer lets you add, color-pick, or clear players; the roster persists via `localStorage` so game night can resume later.
+2. **Prize Wheel** – The SVG-based wheel wedges each player into a slice, animates multi-turn spins, and emits the winning player back into the game context.
+3. **Prompt Console** – Topic and difficulty selectors (fed by `@charades/shared`) recolor the board and call `/api/challenge` for five fresh prompts; alternates shave 30 seconds from the timer.
+4. **Turn Timer & Controls** – Once prompts load for a player, a five-minute countdown starts, Surrender/Got It buttons lock in the outcome, and the player’s badge floats over the prompt card.
+5. **Scoreboard** – Five rounds per player render as a grid of ✓/✕ marks with running totals, and celebratory overlays flash when turns end.
 
-## How the Pieces Interact
+### Key Features
 
-1. The web app lets the user pick a theme, difficulty, and optionally a player from the wheel.
-2. When “Get Prompts” is clicked, `apps/web` calls `/api/challenge` with the selected theme/difficulty.
-3. The API (`apps/api`) forwards that request to OpenAI, enforces the prompt rules, filters out duplicates based on the stored history, and persists new prompts to disk.
-4. The API returns a JSON payload (`ChallengeResponse`) that is rendered in the web UI along with color-coded topic/player badges.
-5. The shared package guarantees both sides agree on request/response shapes and topic metadata.
+- **OpenAI prompt generation** with duplicate avoidance and per-theme history saved to `apps/api/data/challenge-history.json`.
+- **Topic-driven theming** that swaps logos, accent colors, and badge styling based on the selected category.
+- **Alternate prompt penalty** subtracts 30 seconds so teams weigh the cost of skipping clues mid-turn.
+- **Local persistence** for player rosters plus reset helpers for rounds and participants.
+- **Accessibility-minded controls** with keyboard-friendly menus, aria labels, and visible focus styles.
 
-## Development
+### How It Was Built
 
-```bash
-npm install         # installs root + workspace dependencies
-npm run dev         # runs web and api concurrently (see package.json scripts)
-```
+- **Frameworks:** React 18 + Vite + TypeScript in `apps/web`; Express + TypeScript in `apps/api`.
+- **Styling:** Tailwind CSS plus custom gradients, static-TV headers, and wheel SVG math for the casino vibe.
+- **State & Logic:** `GameContext` centralizes prompts, timers, wheel spins, and scoreboard updates so every component stays in sync.
+- **API Integration:** `apps/api/src/routes.ts` calls `gpt-4o-mini` with strict JSON responses, difficulty rules, and a deduped history file.
+- **Shared Types:** `packages/shared` hosts the `Topic`, `Difficulty`, and `Challenge*` contracts consumed by both workspaces through TS path aliases.
 
-The API expects `apps/api/.env` with `OPENAI_API_KEY=...`. The web app reads `VITE_API_BASE` via `apps/web/.env` (defaults to `/api` for local proxying).
+### Getting Started
 
-## Preparing for Deployment
-
-1. **Build shared package first**  
+1. **Install dependencies**
    ```bash
-   npm --workspace packages/shared run build
+   npm install
    ```
-2. **Build each app**  
+2. **Add backend environment variables** – `apps/api/.env`
    ```bash
-   npm --workspace apps/api run build
-   npm --workspace apps/web run build
+   OPENAI_API_KEY=sk-...
+   PORT=8000                 # optional, defaults to 8000
+   CORS_ALLOWED_ORIGINS=http://localhost:5173
    ```
-   The API output goes to `apps/api/dist`. The web app outputs to `apps/web/dist`.
-3. **Configure environment**  
-   * Provide `OPENAI_API_KEY` and `PORT` for the API.  
-   * Serve the built `apps/web/dist` via a static host (Netlify, Vercel, S3, etc.) or behind the API as a static middleware.
-4. **Deploy API**  
-   * Deploy the contents of `apps/api/dist` (plus `package.json`) to your Node runtime (Render, Railway, Heroku, AWS, etc.).  
-   * Ensure the `apps/api/data/` directory is writable so prompt history can persist. Consider mounting persistent storage.
-5. **Wire up the frontend**  
-   * Set `VITE_API_BASE` (or similar runtime env) on the web host to point to the deployed API URL.  
-   * Rebuild the web app with that env (e.g., `VITE_API_BASE=https://api.example.com npm --workspace apps/web run build`) and deploy the static assets.
-6. **Optional: unify hosting**  
-   * Serve `apps/web/dist` from the API server by mounting `express.static` if you prefer a single deployment target. Update the build script or API entrypoint accordingly.
+3. **Add frontend environment variables** – `apps/web/.env`
+   ```bash
+   VITE_API_BASE=http://127.0.0.1:8000/api   # defaults to /api when omitted
+   ```
+4. **Run both apps**
+   ```bash
+   npm run dev
+   ```
+   This launches the shared package watcher, the API (`http://127.0.0.1:8000`), and the Vite dev server (`http://localhost:5173`).
 
-## Additional Notes
+### Development Notes
 
-* The API stores prompt history on the local filesystem. For production clustering or serverless deployments, replace `storage.ts` with a shared datastore (e.g., Redis, Postgres).
-* When updating shared types, run `npm --workspace packages/shared run build` so consuming apps get updated `dist` files before building.
-* Tailwind styles depend on the custom topic palette defined in `apps/web/tailwind.config.js`.
+- Repository layout:
+  ```
+  apps/
+    api/   Express backend + OpenAI integration
+    web/   Vite/React frontend
+  packages/
+    shared/  Type definitions + topic metadata
+  ```
+- Prompt history is file-based; make sure `apps/api/data/` stays writable in whatever environment you deploy to.
+- The wheel requires at least two players before the drawer lets you close it; `Spin` button listens to a `spinSignal` raised from the prompt area.
+- Timer + scoreboard limits are set in `GameContext` (`ROUNDS = 5`, `TURN_DURATION_MS = 5 * 60 * 1000`); tweaking them here updates the UI everywhere.
+- `npm run build` chains builds for shared types, API, then web so deployment artifacts stay in lockstep.
 
-Feel free to tailor the deployment steps to your hosting provider of choice. The critical pieces are ensuring the API has network access to OpenAI with persisted storage for prompt history, and the web app hits the correct API URL.
+### Roadmap Ideas
+
+- Dynamic round counts or variable timer lengths configurable per match.
+- Mobile-friendly gestures (swipe to spin, shake for alternate prompt).
+- Exportable game summaries (CSV of rounds, MVP, etc.) for party recaps.
+- Offline prompt packs for no-internet nights or non-OpenAI backends.
+
+Enjoy hosting charades nights without index cards—spin, mime, and track the bragging rights! If you add new twists, document them here so the next host can pick up where you left off.

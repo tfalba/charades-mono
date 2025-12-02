@@ -17,6 +17,17 @@ const ROUNDS = 5;
 const TURN_DURATION_MS = 5 * 60 * 1000;
 type RoundResult = boolean | null;
 type TurnOutcome = "success" | "fail" | null;
+const PLAYERS_STORAGE_KEY = "charades.players";
+
+const getSafeStorage = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    if (!("localStorage" in window)) return null;
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+};
 
 interface GameContextValue {
   topic: Topic;
@@ -194,6 +205,36 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setResults([]);
     resetRoundState();
   }, [resetRoundState]);
+
+  useEffect(() => {
+    const storage = getSafeStorage();
+    if (!storage) return;
+    const stored = storage.getItem(PLAYERS_STORAGE_KEY);
+    if (!stored) return;
+    try {
+      const parsed = JSON.parse(stored) as Player[];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setPlayers(parsed);
+        setResults(parsed.map(() => Array(ROUNDS).fill(null)));
+      }
+    } catch {
+      storage.removeItem(PLAYERS_STORAGE_KEY);
+    }
+  }, []);
+
+  useEffect(() => {
+    const storage = getSafeStorage();
+    if (!storage) return;
+    if (players.length === 0) {
+      storage.removeItem(PLAYERS_STORAGE_KEY);
+    } else {
+      try {
+        storage.setItem(PLAYERS_STORAGE_KEY, JSON.stringify(players));
+      } catch {
+        storage.removeItem(PLAYERS_STORAGE_KEY);
+      }
+    }
+  }, [players]);
 
   const handleTopicChange = useCallback((nextTopic: Topic) => {
     setPrompts([]);

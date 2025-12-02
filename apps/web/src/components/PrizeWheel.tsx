@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { useGameContext } from "../context/GameContext";
 
-export type Player = { name: string; color: string };
+export type Player = { name: string; color: string; logo?: string };
 
 interface PrizeWheelProps {
   players: Player[];
@@ -22,10 +22,11 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
   size = 300,
   spinSignal = 0,
 }) => {
-  const { selectedPlayer } = useGameContext();
+  const { selectedPlayer, topic } = useGameContext();
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [winnerIndex, setWinnerIndex] = useState<number | null>(null);
+  const showPointer = selectedPlayer !== null || players.length > 0;
 
   const radius = size / 2 - 10;
   const center = size / 2;
@@ -36,7 +37,7 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
     if (count === 0) return [];
     const sliceAngle = (2 * Math.PI) / count;
 
-    return players.map((player, index) => {
+    return players.map((piece, index) => {
       const startAngle = index * sliceAngle;
       const endAngle = startAngle + sliceAngle;
       const midAngle = startAngle + sliceAngle / 2;
@@ -72,7 +73,7 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
       const labelPath = `M ${outerTextX} ${outerTextY} L ${innerTextX} ${innerTextY}`;
 
       return {
-        player,
+        piece,
         index,
         pathData,
         labelX,
@@ -132,7 +133,7 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
     <div className="flex flex-col flex-1 items-center gap-4">
       <div className="relative" style={{ width: size, height: size }}>
         {/* pointer */}
-        {selectedPlayer && (
+        {showPointer && (
           <div className="absolute left-1/2 -top-4 -translate-x-1/2 z-20">
             <div className="w-0 h-0 border-l-8 border-r-8 border-b-[16px] border-l-transparent border-r-transparent border-b-nickBlack" />
           </div>
@@ -164,7 +165,7 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
                 <g key={seg.index}>
                   <path
                     d={seg.pathData}
-                    fill={seg.player.color}
+                    fill={seg.piece.color}
                     stroke="#ffffff"
                     strokeWidth={isWinner ? 4 : 2}
                     opacity={isWinner ? 1 : 0.9}
@@ -186,9 +187,12 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
                       method="align"
                       spacing="auto"
                     >
-                      {seg.player.name}
+                      {seg.piece.name}
                     </textPath>
                   </text>
+                  {seg.piece.logo && (
+                  <img src={seg.piece.logo} alt="logo" />
+                  )}
                 </g>
               );
             })}
