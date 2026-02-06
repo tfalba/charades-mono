@@ -2,20 +2,28 @@
   "name": "charades-mono",
   "private": true,
   "workspaces": {
-    "packages": ["apps/*", "packages/*"],
-    "nohoist": ["**"]
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "nohoist": [
+      "**"
+    ]
   },
-    "scripts": {
+  "scripts": {
     "dev": "concurrently -k -n TYPES,API,WEB -c magenta,green,blue \"npm:dev:types\" \"npm:dev:api\" \"npm:dev:web\"",
     "dev:web": "npm --workspace apps/web run dev",
     "dev:api": "npm --workspace apps/api run dev",
-        "dev:types": "npm -w packages/shared run build:watch",
-
+    "dev:types": "npm -w packages/shared run build:watch",
     "build": "npm -w packages/shared run build && npm -w apps/api run build && npm -w apps/web run build",
     "typecheck": "tsc -b packages/shared apps/api apps/web"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",
     "typescript": "^5.6.0"
+  },
+  "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated",
+    "firebase": "^12.9.0"
   }
 }
