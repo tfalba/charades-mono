@@ -4,6 +4,10 @@ import path from "node:path";
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    outDir: "dist",
+    emptyOutDir: true, // critical: clears out the placeholder every time
+  },
   resolve: {
     alias: {
       // Source alias for great HMR

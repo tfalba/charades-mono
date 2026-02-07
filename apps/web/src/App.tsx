@@ -12,6 +12,8 @@ import tvStatic from "./assets/tv-static.gif";
 import { GameController } from "./components/GameController";
 import { WheelScreen } from "./components/WheelScreen";
 import { GameProvider, useGameContext } from "./context/GameContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { LoginButton, LogoutButton } from "./components/AuthButtons";
 
 const TOPIC_LOGOS: Record<Topic, string> = {
   movies: movieLogo,
@@ -25,9 +27,11 @@ const TOPIC_LOGOS: Record<Topic, string> = {
 
 export default function App() {
   return (
-    <GameProvider>
-      <GameShell />
-    </GameProvider>
+    <AuthProvider>
+      <GameProvider>
+        <GameShell />
+      </GameProvider>
+    </AuthProvider>
   );
 }
 
@@ -42,6 +46,7 @@ function GameShell() {
         backgroundRepeat: "repeat",
       };
 
+      const { user, idToken, authLoading } = useAuth();
   const {
     topic,
     difficulty,
@@ -94,6 +99,10 @@ function GameShell() {
             {staticMotionDisabled ? "Enable Static" : "Disable Static"}
           </button>
         </div>
+        {!user && <LoginButton />}
+        {user && (<div>Welcome back!</div>)}
+        {authLoading && <div>Loading...</div>}
+        {user && <LogoutButton />}
       </header>
 
       <main
@@ -249,14 +258,14 @@ function GameShell() {
         </section>
 
         <WheelScreen
-          // onPlayerSelected={setSelectedPlayer}
-          // selectedPlayer={selectedPlayer}
-          // players={players}
-          // results={results}
-          // roundCount={roundCount}
-          // onAddPlayer={handleAddPlayer}
-          // onRemovePlayer={handleRemovePlayer}
-          // spinSignal={spinSignal}
+        // onPlayerSelected={setSelectedPlayer}
+        // selectedPlayer={selectedPlayer}
+        // players={players}
+        // results={results}
+        // roundCount={roundCount}
+        // onAddPlayer={handleAddPlayer}
+        // onRemovePlayer={handleRemovePlayer}
+        // spinSignal={spinSignal}
         />
       </main>
       <footer
