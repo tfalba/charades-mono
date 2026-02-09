@@ -1,18 +1,89 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --color-primary: #ff3b30;
+    --color-secondary: #00c2ff;
+    --color-accent: #fee440;
+    --color-bg: #0b0d17;
+    --color-surface: #141833;
+    --color-surface-2: #1b2145;
+    --color-text: #f7f7fb;
+    --color-text-muted: #b7bed6;
+    --color-border: #262c4d;
+    --color-shadow: rgba(0, 0, 0, 0.35);
+  }
+
+  body {
+    @apply bg-[color:var(--color-bg)] text-[color:var(--color-text)];
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: "Bricolage Grotesque", system-ui, -apple-system, sans-serif;
+  }
+}
+
 @layer components {
-  .card { @apply rounded-2xl border border-slate-200 shadow-sm p-4 bg-[#252323e8]; }
-  .btn { @apply inline-flex items-center justify-center px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 active:scale-[.99] transition; }
-  .btn-primary { @apply bg-brand-primary text-white border-brand-primary hover:bg-brand-primary/50 hover:opacity-90; }
+  .nc-shell {
+    @apply min-h-dvh flex flex-col justify-between bg-[color:var(--color-bg)] text-[color:var(--color-text)];
+    background-image:
+      radial-gradient(40% 30% at 10% 10%, rgba(0, 194, 255, 0.35), transparent 60%),
+      radial-gradient(45% 40% at 90% 10%, rgba(255, 59, 48, 0.35), transparent 60%),
+      radial-gradient(35% 40% at 20% 90%, rgba(254, 228, 64, 0.25), transparent 60%);
+  }
+
+  .nc-header {
+    @apply relative overflow-hidden border-b border-[color:var(--color-border)] bg-[color:var(--color-surface)];
+  }
+
+  .nc-card {
+    @apply rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4 shadow-xl;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  }
+
+  .nc-panel {
+    @apply rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--color-surface-2)] p-4 shadow-2xl;
+  }
+
+  .nc-btn {
+    @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition;
+  }
+
+  .nc-btn-primary {
+    @apply nc-btn bg-[color:var(--color-primary)] text-black hover:brightness-110;
+  }
+
+  .nc-btn-secondary {
+    @apply nc-btn bg-[color:var(--color-secondary)] text-black hover:brightness-110;
+  }
+
+  .nc-btn-ghost {
+    @apply nc-btn border border-white/20 text-white hover:bg-white/10;
+  }
+
+  .nc-input {
+    @apply w-full rounded-2xl border border-[color:var(--color-border)] bg-black/20 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-secondary)];
+  }
+
+  .nc-chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white;
+  }
+
   .theme-select-wrapper { @apply relative w-full; }
   .theme-select {
-    @apply w-full rounded-2xl border border-slate-700 bg-[#2b1b1bba] px-4 py-2 text-white font-semibold shadow-md focus:outline-none focus:ring-0 transition appearance-none;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    @apply w-full rounded-2xl border border-[color:var(--color-border)] bg-black/30 px-4 py-3 text-white font-semibold focus:outline-none transition appearance-none;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   }
   .theme-select option {
-    @apply bg-[#2b1b1b] text-white;
+    @apply bg-[#111427] text-white;
   }
   .theme-select-wrapper::after {
     content: "";
@@ -27,25 +98,16 @@
     pointer-events: none;
   }
   .theme-select:focus-visible {
-    outline: 3px solid var(--accent-color, #007469);
+    outline: 3px solid var(--accent-color, #00c2ff);
     outline-offset: 2px;
-    border-color: var(--accent-color, #007469);
-    box-shadow: 0 0 0 4px var(--accent-color, #007469);
+    border-color: var(--accent-color, #00c2ff);
+    box-shadow: 0 0 0 4px var(--accent-color, #00c2ff);
   }
+
   .header-gradient {
-    background: linear-gradient(
-      90deg,
-      #F97316 0%,
-      #F97316 12%,
-      #8B5CF6 24%,
-      #0EA5E9 36%,
-      #FACC15 48%,
-      #EC4899 60%,
-      #22C55E 72%,
-      #64748B 84%,
-      #0D4650 100%
-    );
+    background: linear-gradient(120deg, #ff3b30 0%, #ff3b30 18%, #00c2ff 48%, #fee440 100%);
   }
+
   .logo-spin {
     animation: spin 2.1s linear infinite;
   }

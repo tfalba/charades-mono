@@ -72,6 +72,25 @@ Spin for a player, fetch AI-generated prompts, run five-round matches, and keep 
 - Timer + scoreboard limits are set in `GameContext` (`ROUNDS = 5`, `TURN_DURATION_MS = 5 * 60 * 1000`); tweaking them here updates the UI everywhere.
 - `npm run build` chains builds for shared types, API, then web so deployment artifacts stay in lockstep.
 
+### Firebase Hosting Deploy
+
+1. **Set production API base** – `apps/web/.env.production`
+   ```bash
+   VITE_API_BASE=https://charades-tracy.onrender.com/api
+   ```
+2. **Build the web app**
+   ```bash
+   npm run build --workspace=apps/web
+   ```
+3. **Deploy hosting**
+   ```bash
+   firebase deploy --only hosting
+   ```
+
+**Switching API targets**
+- Local dev uses `apps/web/.env` (typically `http://127.0.0.1:8000/api`).
+- Production builds use `apps/web/.env.production` (Render URL).
+
 ### Roadmap Ideas
 
 - Dynamic round counts or variable timer lengths configurable per match.

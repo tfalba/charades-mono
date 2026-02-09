@@ -4,12 +4,12 @@ import { ScoreBoard } from "./ScoreBoard";
 import { useGameContext } from "../context/GameContext";
 
 const COLOR_PALETTE = [
-  { name: "Orange", color: "#F97316" },
-  { name: "Purple", color: "#8B5CF6" },
-  { name: "Blue", color: "#0EA5E9" },
-  { name: "Yellow", color: "#FACC15" },
-  { name: "Pink", color: "#EC4899" },
-  { name: "Green", color: "#22C55E" },
+  { name: "Neon Coral", color: "#FF3B30" },
+  { name: "Electric Cyan", color: "#00C2FF" },
+  { name: "Laser Lime", color: "#7CFF6B" },
+  { name: "Sunbeam", color: "#FEE440" },
+  { name: "Magenta Pop", color: "#FF4DB8" },
+  { name: "Ultraviolet", color: "#8B5CF6" },
 ];
 
 type RoundResult = boolean | null;
@@ -60,47 +60,48 @@ export const WheelScreen: React.FC<WheelScreenProps> = () => {
     }
   }, [players.length]);
 
-  const showPointer = selectedPlayer !== null || players.length > 0;
-
   return (
-    <div className="relative min-h-auto flex flex-col gap-4 items-center justify-center bg-midnight/80 text-white py-6">
-              {players.length > 1 && (
+    <div className="relative flex flex-col gap-4 items-center justify-center text-white pt-2 pb-6">
+      {players.length > 1 && (
+        <div className="flex flex-wrap gap-6 items-start justify-center w-full">
+          <div className="nc-panel flex flex-col items-center gap-4">
+            <div className="text-xs uppercase tracking-[0.35em] text-white/60">
+              Spin Order
+            </div>
+            <PrizeWheel
+              players={players}
+              onSpinEnd={setSelectedPlayer}
+              spinSignal={spinSignal}
+              size={250}
+            />
+          </div>
 
-      <div className="flex flex-wrap gap-4 items-start justify-center w-full px-4">
-          <PrizeWheel
-            players={players}
-            onSpinEnd={setSelectedPlayer}
-            spinSignal={spinSignal}
-            size={250}
-          />
-      
-        <div className="flex flex-col gap-4">
-          <ScoreBoard
-            roundHeaders={roundHeaders}
-            players={players}
-            selectedPlayer={selectedPlayer}
-            results={results}
-          />
-          <div className="w-full flex justify-between px-4">
-            <button
-              type="button"
-              onClick={() => setIsPanelOpen(true)}
-              className="px-4 py-2 rounded-full bg-black/70 border border-white/30 text-xs uppercase tracking-wide hover:bg-white/20 transition shadow"
-            >
-              Manage Players
-            </button>
-             <button
-              type="button"
-              onClick={() => handleClearRounds()}
-              className="px-4 py-2 rounded-full bg-black/70 border border-white/30 text-xs uppercase tracking-wide hover:bg-white/20 transition shadow"
-            >
-              Clear Rounds
-            </button>
+          <div className="flex flex-col gap-4 w-full max-w-xl">
+            <ScoreBoard
+              roundHeaders={roundHeaders}
+              players={players}
+              selectedPlayer={selectedPlayer}
+              results={results}
+            />
+            <div className="w-full flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => setIsPanelOpen(true)}
+                className="nc-btn-ghost"
+              >
+                Manage Players
+              </button>
+              <button
+                type="button"
+                onClick={() => handleClearRounds()}
+                className="nc-btn-ghost"
+              >
+                Clear Rounds
+              </button>
+            </div>
           </div>
         </div>
-        
-      </div>
-              )}
+      )}
 
       <div
         className={`fixed inset-0 z-40 transition-opacity duration-300 ${
@@ -119,11 +120,11 @@ export const WheelScreen: React.FC<WheelScreenProps> = () => {
       </div>
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-full max-w-sm bg-[#1a1a1d] text-white shadow-2xl transition-transform duration-300 ${
+        className={`fixed top-0 left-0 z-50 h-full w-full max-w-sm bg-[color:var(--color-surface)] text-white shadow-2xl transition-transform duration-300 ${
           isPanelOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[color:var(--color-border)]">
           <div>
             <p className="text-sm uppercase tracking-[0.25em] text-white/60">
               Player Setup
@@ -134,7 +135,7 @@ export const WheelScreen: React.FC<WheelScreenProps> = () => {
             type="button"
             onClick={() => setIsPanelOpen(false)}
             disabled={players.length < 2}
-            className="px-3 py-1 rounded-full border border-white/40 text-xs uppercase tracking-wide hover:bg-white/10 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="nc-btn-ghost disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Done
           </button>
@@ -192,7 +193,7 @@ export const WheelScreen: React.FC<WheelScreenProps> = () => {
               value={newPlayerName}
               onChange={(e) => setNewPlayerName(e.target.value)}
               placeholder="Player name"
-              className="w-full rounded-2xl border border-white/20 bg-black/30 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30"
+              className="nc-input"
             />
             <div>
               <p className="text-xs uppercase tracking-wide text-white/60 mb-2">
@@ -219,7 +220,7 @@ export const WheelScreen: React.FC<WheelScreenProps> = () => {
               type="button"
               onClick={addPlayer}
               disabled={!newPlayerName.trim()}
-              className="w-full rounded-xl bg-white text-black font-semibold py-3 uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-[color:var(--color-secondary)] text-black font-semibold py-3 uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Add to List
             </button>

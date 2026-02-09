@@ -16,14 +16,14 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
   results,
 }) => {
     return (
-         <div className="w-full flex-1 max-w-xl">
-          <div className="text-center text-lg font-semibold uppercase tracking-wide text-white mb-3">
+         <div className="w-full flex-1 max-w-xl nc-panel">
+          <div className="text-center text-lg font-semibold uppercase tracking-[0.25em] text-white mb-3">
             Scoreboard
           </div>
-          <div className="overflow-x-auto rounded-lg border border-slate-600 bg-[#1f1f1f]/60 shadow-lg">
+          <div className="overflow-x-auto rounded-2xl border border-[color:var(--color-border)] bg-black/20 shadow-lg">
             <table className="min-w-full text-sm text-white">
               <thead>
-                <tr className="text-xs uppercase tracking-wider bg-slate-900/50">
+                <tr className="text-xs uppercase tracking-wider bg-white/5">
                   <th className="px-4 py-3 text-left">Player/Round</th>
                   {roundHeaders.map((label) => (
                     <th key={label} className="px-3 py-3 text-center">
@@ -41,7 +41,7 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
                   return (
                     <tr
                       key={player.name}
-                      className={`border-t border-slate-700 ${
+                      className={`border-t border-[color:var(--color-border)] ${
                         playerIdx % 2 === 0 ? "bg-black/10" : "bg-black/30"
                       }`}
                     >

@@ -76,48 +76,60 @@ function GameShell() {
   const accentColor = topicTheme.color;
 
   return (
-    <div className="min-h-dvh header-gradient flex flex-col justify-between">
+    <div className="nc-shell">
       <header
-        className="text-white min-h-[12vh] bg-[#231515]"
+        className="nc-header text-white"
         style={staticBackgroundStyle}
       >
-        <div className="relative mx-auto max-w-3xl px-4 py-1 gap-4 flex justify-center items-center">
-          <h1 className="text-[min(9vw,15vh,60px)] font-italic font-bold">
-            Charades
-          </h1>
-          <img
-            className="w-full max-w-[145px] rounded-xl shadow-lg"
-            alt="logo"
-            src={logo}
-          />
-          <button
-            type="button"
-            onClick={() => setStaticMotionDisabled((prev) => !prev)}
-            className="absolute top-[8vh] right-0 text-xs tracking-wide uppercase bg-black/60 text-white px-4 py-2 rounded-full border border-white/30 shadow-md hover:bg-black/70 transition"
-            aria-pressed={staticMotionDisabled}
-          >
-            {staticMotionDisabled ? "Enable Static" : "Disable Static"}
-          </button>
+        <div className="absolute inset-0 header-gradient opacity-50" />
+        <div className="relative mx-auto w-full max-w-3xl px-4 py-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <h1 className="text-[min(10vw,6rem)] font-display font-extrabold tracking-tight">
+                Charades
+              </h1>
+              {/* <p className="text-sm text-white/70 max-w-sm">
+                Mobile-first rounds for fast party play.
+              </p> */}
+            </div>
+            <div className="flex flex-col items-end gap-3">
+              <img
+                className="w-[120px] w-[50%] absolute top-0 right-0 opacity-60 rounded-2xl shadow-2xl border border-white/10 bg-black/20 p-2"
+                alt="logo"
+                src={logo}
+              />
+              <button
+                type="button"
+                onClick={() => setStaticMotionDisabled((prev) => !prev)}
+                className="nc-btn-ghost absolute top-4 right-2"
+                aria-pressed={staticMotionDisabled}
+              >
+                {staticMotionDisabled ? "Enable Static" : "Disable Static"}
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            {!user && <LoginButton />}
+            {user && <div className="text-sm text-white/80">Welcome back!</div>}
+            {authLoading && <div className="text-sm text-white/70">Loading...</div>}
+            {user && <LogoutButton />}
+          </div>
         </div>
-        {!user && <LoginButton />}
-        {user && (<div>Welcome back!</div>)}
-        {authLoading && <div>Loading...</div>}
-        {user && <LogoutButton />}
       </header>
 
       <main
-        className="flex flex-col gap-4 rounded-xl mx-2 md:mx-auto max-w-3xl min-h-[100vh] p-4 space-y-2 min-w-[min(70vw,700px)] my-4 lg:my-6"
-        style={{ backgroundColor: `${accentColor}15` }}
+        className="mx-auto w-full max-w-3xl px-4 pb-10 pt-2 flex flex-col gap-3"
+        style={{ backgroundColor: `${accentColor}10` }}
       >
         <GameController />
 
         <section
-          className="card border-4 mb-0 relative overflow-hidden"
+          className="nc-card border-2 mb-0 relative overflow-hidden"
           style={{ borderColor: accentColor }}
         >
-          <div className="flex justify-between items-center gap-2 text-sm text-slate-600 mb-4 sm:mb-0">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-white/70 mb-4">
             <span
-              className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1"
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1"
               aria-label={`${topicTheme.label} theme color`}
             >
               <span
@@ -126,18 +138,18 @@ function GameShell() {
               />
               {topicTheme.label}
             </span>
-            <span className="text-xs font-semibold text-white">
+            <span className="text-xs font-semibold text-white/80">
               Difficulty: {difficulty}
             </span>
           </div>
-          {prompts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center py-8 space-y-4">
+          {prompts.length === 0 && (selectedPlayer || loading) ? (
+            <div className="flex flex-col items-center justify-center text-center space-y-4">
               {(() => {
                 const primaryDisabled =
                   loading || (!selectedPlayer && players.length === 0);
                 const actionClass = primaryDisabled
-                  ? "bg-white/20 text-white/60 cursor-not-allowed border-white/20"
-                  : "bg-white/10 text-white border-white/30 hover:bg-white/20";
+                  ? "bg-white/10 text-white/50 cursor-not-allowed border-white/10"
+                  : "bg-[color:var(--color-secondary)] text-black border-transparent hover:brightness-110";
                 return (
                   <button
                     type="button"
@@ -149,7 +161,8 @@ function GameShell() {
                       ? "Loading…"
                       : selectedPlayer
                         ? "Get Prompts"
-                        : "Spin the Wheel"}
+                        : null}
+                        {/* : "Spin the Wheel"} */}
                   </button>
                 );
               })()}
@@ -157,12 +170,12 @@ function GameShell() {
                 <img
                   src={TOPIC_LOGOS[topic] ?? logo}
                   alt="Loading"
-                  className={`h-32 w-36 opacity-90 ${loading && "logo-spin"}`}
+                  className={`h-26 w-32 opacity-90 ${loading && "logo-spin"}`}
                 />
               </div>
             </div>
           ) : (
-            <div className="flex flex-col h-full py-8 space-y-4">
+            <div className="flex flex-col h-full pt-2 space-y-1">
               <div className="space-y-4 flex-1 flex flex-col items-center justify-center text-center">
                 {!loading ? (
                   <>
@@ -170,9 +183,9 @@ function GameShell() {
                       <img
                         src={TOPIC_LOGOS[topic] ?? logo}
                         alt="Loading"
-                        className={`h-32 w-36 opacity-90 ${loading && "logo-spin"}`}
+                        className={`h-28 w-32 opacity-90 ${loading && "logo-spin"}`}
                       />
-                      <p className="text-2xl  mt-4 text-white font-semibold px-2">
+                      <p className="text-2xl mt-4 text-white font-semibold px-2">
                         {prompts[idx]}
                       </p>
                     </div>
@@ -193,7 +206,7 @@ function GameShell() {
           {hasAlternatePrompt ? (
             <section className="flex justify-end mt-4 sm:mt-0">
               <button
-                className="items-end ml-auto px-4 py-2 rounded-full border text-xs uppercase tracking-wide font-semibold transition shadow bg-white/10 text-white border-white/30 hover:bg-white/20"
+                className="nc-btn-ghost"
                 onClick={getAlternate}
               >
                 Get Alternate
@@ -205,7 +218,7 @@ function GameShell() {
           <div className="flex items-end justify-between">
             {prompts.length > 0 && (
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                <div className="text-sm font-semibold text-white px-3 py-1 rounded-full bg-slate-900/70 border border-white/10">
+                <div className="text-sm font-semibold text-white px-3 py-1 rounded-full bg-black/40 border border-white/10">
                   {selectedPlayer ? formattedTime : "05:00"}
                 </div>
                 <div className="flex gap-2">
@@ -269,7 +282,7 @@ function GameShell() {
         />
       </main>
       <footer
-        className="bg-[#231515] w-full flex justify-center px-4 py-6 opacity-[.8]"
+        className="w-full flex justify-center px-4 py-6 opacity-[.85] border-t border-[color:var(--color-border)]"
         style={staticBackgroundStyle}
       />
     </div>

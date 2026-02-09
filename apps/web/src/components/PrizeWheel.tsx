@@ -22,7 +22,7 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
   size = 300,
   spinSignal = 0,
 }) => {
-  const { selectedPlayer, topic } = useGameContext();
+  const { selectedPlayer } = useGameContext();
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [winnerIndex, setWinnerIndex] = useState<number | null>(null);
@@ -130,17 +130,17 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
   }, [spin, spinSignal]);
 
   return (
-    <div className="flex flex-col flex-1 items-center gap-4">
+    <div className="flex flex-1 items-center gap-4">
       <div className="relative" style={{ width: size, height: size }}>
         {/* pointer */}
         {showPointer && (
           <div className="absolute left-1/2 -top-4 -translate-x-1/2 z-20">
-            <div className="w-0 h-0 border-l-8 border-r-8 border-b-[16px] border-l-transparent border-r-transparent border-b-nickBlack" />
+            <div className="w-0 h-0 border-l-8 border-r-8 border-b-[16px] border-l-transparent border-r-transparent border-b-[color:var(--color-accent)]" />
           </div>
         )}
 
         {/* wheel */}
-        <div className="w-full h-full rounded-full bg-nickCream shadow-2xl flex items-center justify-center">
+        <div className="w-full h-full rounded-full bg-[color:var(--color-surface)] shadow-2xl flex items-center justify-center border border-[color:var(--color-border)]">
           <svg
             width={size}
             height={size}
@@ -203,22 +203,23 @@ export const PrizeWheel: React.FC<PrizeWheelProps> = ({
               cy={center}
               r={radius * 0.25}
               onClick={spin}
-              fill="#111827"
+              fill="#0b0d17"
               stroke="#ffffff"
               strokeWidth={3}
             />
           </svg>
         </div>
       </div>
-
-      <button
-        type="button"
-        onClick={spin}
-        disabled={isSpinning || players.length === 0}
-        className="px-6 py-3 rounded-full bg-nickRust text-white font-semibold text-sm tracking-wide shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-nickBrown transition"
-      >
-        {isSpinning ? "Spinning…" : "Spin the Wheel"}
-      </button>
+      {!selectedPlayer && (
+        <button
+          type="button"
+          onClick={spin}
+          disabled={isSpinning || players.length === 0}
+          className="px-6 py-3 rounded-full bg-[color:var(--color-primary)] text-black font-semibold text-sm tracking-wide shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 transition"
+        >
+          {isSpinning ? "Spinning …" : "Spin the Wheel"}
+        </button>
+      )}
     </div>
   );
 };

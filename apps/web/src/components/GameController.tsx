@@ -21,6 +21,7 @@ export function GameController() {
     fetchPrompts,
     loading,
     selectedPlayer,
+    prompts,
   } = useGameContext();
 
   const topicDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -30,6 +31,7 @@ export function GameController() {
   const topicTheme = TOPIC_INFO[topic];
   const accentColor = topicTheme.color;
   const selectAccentStyle = { "--accent-color": accentColor } as CSSProperties;
+  const isSelectionLocked = loading || prompts.length > 0;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -52,6 +54,12 @@ export function GameController() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!isSelectionLocked) return;
+    setIsTopicMenuOpen(false);
+    setIsDifficultyMenuOpen(false);
+  }, [isSelectionLocked]);
+
   const onTopicSelect = (nextTopic: Topic) => {
     handleTopicChange(nextTopic);
     setIsTopicMenuOpen(false);
@@ -63,17 +71,24 @@ export function GameController() {
   };
 
   return (
-    <section>
-      <div className="grid gap-3 grid-cols-[1fr,1fr] md:grid-cols-[1fr,1fr,auto]">
+    <section className="nc-panel">
+      <div className="grid gap-3 grid-cols-[1fr,1fr]">
         <div className="theme-select-wrapper" ref={topicDropdownRef}>
           <button
             type="button"
-            className="theme-select flex items-center justify-between gap-3"
+            className={`theme-select flex items-center justify-between gap-3 ${
+              isSelectionLocked ? "cursor-not-allowed opacity-60" : ""
+            }`}
             style={{
               ...selectAccentStyle,
-              boxShadow: "0 6px 18px rgba(0, 0, 0, 0.3)",
+              boxShadow: "0 10px 24px rgba(0, 0, 0, 0.35)",
             }}
-            onClick={() => setIsTopicMenuOpen((open) => !open)}
+            onClick={() => {
+              if (isSelectionLocked) return;
+              setIsTopicMenuOpen((open) => !open);
+            }}
+            disabled={isSelectionLocked}
+            aria-disabled={isSelectionLocked}
           >
             <span className="flex items-center gap-3 text-left">
               <span
@@ -101,7 +116,7 @@ export function GameController() {
             </svg>
           </button>
           {isTopicMenuOpen && (
-            <div className="absolute z-40 -mt-16 w-full rounded-2xl border border-slate-700 bg-[#1f1f1f]/95 shadow-2xl backdrop-blur">
+            <div className="absolute z-40 -mt-16 w-full rounded-2xl border border-[color:var(--color-border)] bg-[#0b0d17]/95 shadow-2xl backdrop-blur">
               <ul className="max-h-[20rem] overflow-auto py-2">
                 {TOPIC_LIST.map((t) => (
                   <li key={t.key}>
@@ -140,12 +155,19 @@ export function GameController() {
         <div className="theme-select-wrapper" ref={difficultyDropdownRef}>
           <button
             type="button"
-            className="theme-select flex items-center justify-between gap-3"
+            className={`theme-select flex items-center justify-between gap-3 ${
+              isSelectionLocked ? "cursor-not-allowed opacity-60" : ""
+            }`}
             style={{
               ...selectAccentStyle,
-              boxShadow: "0 6px 18px rgba(0, 0, 0, 0.3)",
+              boxShadow: "0 10px 24px rgba(0, 0, 0, 0.35)",
             }}
-            onClick={() => setIsDifficultyMenuOpen((open) => !open)}
+            onClick={() => {
+              if (isSelectionLocked) return;
+              setIsDifficultyMenuOpen((open) => !open);
+            }}
+            disabled={isSelectionLocked}
+            aria-disabled={isSelectionLocked}
           >
             <span className="font-semibold tracking-wide">{difficulty}</span>
             <svg
@@ -165,7 +187,7 @@ export function GameController() {
             </svg>
           </button>
           {isDifficultyMenuOpen && (
-            <div className="absolute z-40 -mt-16 w-full rounded-2xl border border-slate-700 bg-[#1f1f1f]/95 shadow-2xl backdrop-blur">
+            <div className="absolute z-40 -mt-16 w-full rounded-2xl border border-[color:var(--color-border)] bg-[#0b0d17]/95 shadow-2xl backdrop-blur">
               <ul className="max-h-64 overflow-auto py-2">
                 {["Easy", "Medium", "Hard"].map((level) => (
                   <li key={level}>
