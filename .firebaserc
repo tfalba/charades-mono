@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "charades-tracy"
-  }
+    "default": "charades-tracy",
+    "staging": "charades-tracy",
+    "production": "charades-tracy"
+  },
+  "targets": {},
+  "etags": {}
 }

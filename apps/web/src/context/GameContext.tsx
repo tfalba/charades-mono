@@ -247,7 +247,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
       .toString()
       .padStart(2, "0");
     const seconds = (totalSeconds % 60).toString().padStart(2, "0");
-    console.log(minutes, "minutes", seconds, "seconds")
     return `${minutes}:${seconds}`;
   }, [timeRemainingMs]);
 
